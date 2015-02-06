@@ -1,0 +1,144 @@
+\ProvidesPackage{AdamStyle}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{amscd}
+\usepackage{amsfonts}
+\usepackage{amsbsy}
+\usepackage{setspace}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{calc}
+\usepackage{subfigure}
+\usepackage{verbatim}
+\usepackage{algorithmicx}
+%\usepackage{algpseudocode}
+%\usepackage{algorithm}
+%\usepackage{algorithm2e}
+%\usepackage{algorithm}
+%\usepackage{algpseudocode}
+%\usepackage{paralist}
+\usepackage{setspace}
+\usepackage{verbatim}
+\usepackage{euscript}
+\usepackage{color}
+%\usepackage{fancyvrb}
+\usepackage{titletoc}
+\usepackage{changepage}
+%--------------------
+\usepackage{framed}
+\usepackage{bm}
+\colorlet{shadecolor}{blue!10}
+%--------------------
+\definecolor{light-gray}{gray}{0.9}
+
+
+% rm
+\newcommand{\ud}{\mathrm{d}}
+\newcommand{\uRe}{\mathrm{Re}}
+\newcommand{\tr}{\mathrm{tr}}
+
+% CALIGRAF
+\newcommand{\cA}{\mathcal{A}}
+\newcommand{\cB}{\mathcal{B}}
+\newcommand{\cN}{\mathcal{N}}
+
+% SETS
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\C}{\ensuremath{\mathbb{C}}}
+\newcommand{\N}{\ensuremath{\mathbb{N}}}
+\newcommand{\Q}{\ensuremath{\mathbb{Q}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\X}{\ensuremath{\mathbf{X}}}
+
+
+% BOLD FACE
+\newcommand{\be}{{\bf e}}
+%\newcommand{\bm}{{\bf m}}
+\newcommand{\bx}{{\bf x}}
+\newcommand{\by}{{\bf y}}
+\newcommand{\bz}{{\bf z}}
+\newcommand{\bA}{{\bf{A}}}
+\newcommand{\bB}{{\bf{B}}}
+\newcommand{\bC}{{\bf{C}}}
+\newcommand{\bD}{{\bf{D}}}
+\newcommand{\bF}{{\bf F}}
+\newcommand{\bH}{{\bf H}}
+\newcommand{\bI}{{\bf I}}
+\newcommand{\bK}{{\bf K}}
+\newcommand{\bP}{{\bf P}}
+\newcommand{\bQ}{{\bf Q}}
+\newcommand{\bR}{{\bf R}}
+\newcommand{\bX}{{\bf X}}
+\newcommand{\bZ}{{\bf Z}}
+
+% mathbf
+\newcommand{\bfa}{\mathbf{a}}
+\newcommand{\bfb}{\mathbf{b}}
+\newcommand{\bfc}{\mathbf{c}}
+\newcommand{\bfd}{\mathbf{d}}
+\newcommand{\bfe}{\mathbf{e}}
+\newcommand{\bff}{\mathbf{f}}
+\newcommand{\bfg}{\mathbf{g}}
+\newcommand{\bfh}{\mathbf{h}}
+\newcommand{\bfi}{\mathbf{i}}
+\newcommand{\bfj}{\mathbf{j}}
+\newcommand{\bfk}{\mathbf{k}}
+\newcommand{\bfm}{\mathbf{m}}
+\newcommand{\bfn}{\mathbf{n}}
+\newcommand{\bfp}{\mathbf{p}}
+\newcommand{\bfr}{\mathbf{r}}
+\newcommand{\bfs}{\mathbf{s}}
+\newcommand{\bft}{\mathbf{t}}
+\newcommand{\bfu}{\mathbf{u}}
+\newcommand{\bfv}{\mathbf{v}}
+\newcommand{\bfw}{\mathbf{w}}
+\newcommand{\bfx}{\mathbf{x}}
+\newcommand{\bfy}{\mathbf{y}}
+\newcommand{\bfz}{\mathbf{z}}
+\newcommand{\bfK}{\mathbf{K}}
+\newcommand{\bfP}{\mathbf{P}}
+\newcommand{\bfX}{\mathbf{X}}
+
+\newcommand{\bfbeta}{{\pmb{\beta}}}
+\newcommand{\bftheta}{{\pmb{\theta}}}
+
+\newcommand{\p}{\partial}
+%\newcommand{\SSS}{\ensuremath{\mathbb{S}}}
+%\newcommand{\D}{\ensuremath{\mathbb{D}}}
+%\newcommand{\ath}{{\mbox{arctanh}}}
+%\newcommand{\const}{{\mbox{constant}}}
+%\newcommand{\di}{{\mbox{div}}}
+%\newcommand{\Int}{\mathrm{Int}}
+%\newcommand{\Sys}{\mathrm{Sys}}
+%\newcommand{\BEA}{\begin{eqnarray}}
+%\newcommand{\EEA}{\end{eqnarray}}
+
+
+\newtheorem {theorem} {Theorem} %[section]
+\newtheorem {proposition} [theorem] {Proposition}
+\newtheorem {corollary} [theorem] {Corollary}
+\newtheorem {lemma} [theorem] {Lemma}
+\newtheorem {definition} {Definition}
+\newtheorem {remark}[theorem]{Remark}
+\newtheorem {example} {Example}
+\newtheorem {conjecture}{Conjecture}
+
+\newcommand{\bbox}{\ \hfill\rule[-1mm]{2mm}{3.2mm}}
+
+\newcommand{\marginlabel}[1]
+           {\mbox{}\marginpar{\raggedright\hspace{0pt}\scriptsize #1}}
+\def\margl{\marginlabel}
+
+
+\makeatletter
+\newcommand{\distas}[1]{\mathbin{\overset{#1}{\kern\z@\sim}}}%
+\newsavebox{\mybox}\newsavebox{\mysim}
+\newcommand{\distras}[1]{%
+  \savebox{\mybox}{\hbox{\kern3pt$\scriptstyle#1$\kern3pt}}%
+  \savebox{\mysim}{\hbox{$\sim$}}%
+  \mathbin{\overset{#1}{\kern\z@\resizebox{\wd\mybox}{\ht\mysim}{$\sim$}}}%
+}
+\makeatother

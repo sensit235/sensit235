@@ -1,0 +1,654 @@
+\documentclass[a4paper, 12pt]{article}
+%\documentclass[letter, 12pt]{amsart}
+%\usepackage[notref, notcite]{showkeys}
+%\usepackage{refcheck}
+\usepackage{AdamStyle}
+
+\usepackage[version=3]{mhchem} % for CRN
+
+% Text layout
+\topmargin -1.0cm
+\oddsidemargin 0.5cm
+\evensidemargin 0.5cm
+\textwidth 15cm
+\textheight 23cm
+
+\newcommand{\argmin}{\operatornamewithlimits{arg\,\,min}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title{Global versus local sensitivity analysis: \\ Am I getting different results?}
+\author{A Mahdi$^1$, S Hall$^1$, Q Jin$^2$, SJ Payne$^1$\\ \\
+ {\small \sf $^1$Institute of Biomedical Engineering, University of Oxford}\\
+ {\small \sf $^2$Department of Geological Sciences, University of Oregon}
+}
+
+%% AMSART
+%\title[local versus local sensitivity analysis]{Global vs local sensitivity analysis. \\ Am I getting different results?}
+%\author[A Mahdi, S Hall, Q Jin, SJ Payne]{A Mahdi$^1$, S Hall$^1$, Q Jin$^2$, SJ Payne$^1$\\ \\
+% {\tiny \sf $^1$Institute of Biomedical Engineering, University of Oxford\\ 
+%Oxford OX3 7DQ, UK}\\
+% \\
+% {\tiny \sf $^2$Department of Geological Sciences, University of Oregon\\
+% Eugene, OR 97403, USA
+% }
+%}
+
+%\address{University of Oxford}
+%\date{\today}
+%\AtEndDocument{\bigskip{\footnotesize%
+%  \textsc{Institute of Biomedical Engineering, Department of Engineering Science,
+%University of Oxford, Oxford, UK} \par
+%  \textit{E-mail address}, A.~Mahdi: \texttt{adam.mahdi@eng.ox.ac.uk} \par
+%  \addvspace{\medskipamount}
+%  \textit{E-mail address}, S.K.~Hall \texttt{sheldon.hall@eng.ox.ac.uk} \par
+%}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%% Start TeXmacs macros
+\newcommand{\tmmathbf}[1]{\ensuremath{\boldsymbol{#1}}}
+\newcommand{\tmop}[1]{\ensuremath{\operatorname{#1}}}
+%%%%%%%%%% End TeXmacs macros
+
+\date{}
+
+\begin{document}
+
+\maketitle
+
+%\onehalfspacing
+%\doublespacing
+
+\begin{abstract}
+We compare a widely used parameter screening technique  (Morris method) agains a popular local sensitivity analysis method (Sensitivity Functions) and show how to apply them in the context of a multiparameter microbial reaction model.  We discuss a possible discrepancy that one might obtain from comparing local and global methods and discuss potential pitfalls that one might fall into in computing the uncertainty quantification in certain regions of the dynamics.  Finally, we show how a simple steady-state analysis can contribute both the understanding of the dynamics of the model.
+\end{abstract}
+
+\tableofcontents
+ \clearpage
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+%%%%%%%%%%%%%%%%%%%%%%%
+
+% Importance of mathematical modeling 
+The use a mathematical modeling has become a widely used tool in virtually all branches of science and engineering.  The models are typically written as a system of algebraic and/or differential equations with multiple parameters.  The increase of computational power allowed for construct and simulate increasingly complex models with a larger number of  state variables and parameters.  Over the years a number of analytic and computational tools have been developed in order to identify the correct modeling approach. Some of those methods include structural and practical identifiably \cite{Cobelli1980, Ljung1994, Raue2009, MahMesSul14}, identification \cite{Ljung1998} methods. 
+
+\smallskip
+
+Here we focus on the  determination of relative importance of different parameters is an important problem, which is addressed by various sensitivity analysis methods \cite{Saltelli2000}. It is not uncommon to obtain ``contradictory" results by using different sensitivity techniques, which might lead to wrong conclusion about the role of parameters.
+
+{\color{red}{ADAM: I think that we should define or explain what we mean by local and global here.}}
+
+We consider two very common sensitivity analysis approaches, one global (Morris method \cite{Morris1991, Montague1992, Saltelli2006}) techniques, one local method (sensitivity functions, \cite{Banks2007a, Banks2010})). In particular we show how to obtain a ranking of parameters based on those approaches, identify the intervals of the highest sensitivity and address possible pitfalls in applying those methods. 
+
+%\smallskip
+%{\color{red}{EXPAND THE INTRODUCTION.}}
+
+\smallskip
+
+%\smallskip
+%
+%%  Aim of this work
+%The aim of this work is:
+%\begin{itemize}
+%\item compare the scope of the results of {\bf Morris method} and {\bf Traditional Sensitivity Functions} using a microbial reaction model
+%\item since contradictory results are not uncommon,  illustrate a need for a careful application of the methods
+%\item show how to obtain uncertainty on the parameters 
+%\item we show how the steady-state analysis can help in understanding the model's parameters
+%\end{itemize}
+%\smallskip
+
+
+The paper is organized as follows. In Section~\ref{Sec:methodology}  we set the framework and review the two common sensitivity analysis method, the Morris screening method and the local sensitivity functions. In Section~\ref{Sec:model} we introduce the microbial reaction model, which is the basis for our sensitivity analysis. Finally in Section~\ref{Sec:results} we present the results and discuss potential pitfalls in applying the local and global sensitivity analysis.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\section{Methodology}\label{Sec:methodology}
+%%%%%%%%%%%%%%%%%%%%%%%
+%-----------------------------------------------------------
+%\subsection{Theoretical framework}
+%-----------------------------------------------------------
+
+Here we provide a general framework for our discussion. We consider the foliowing {\it dynamic model} underlying the process that we model  
+\begin{equation}\label{mod:dyn}
+\frac{d\bfx}{dt}=\bff(t,\bfx;\bftheta),\qquad  \bfx(0)=\bfx_0,
+\end{equation}
+where $\bfx = (x_1,\ldots,x_n)\in\R^n$ denotes the state, $\bfx_0 = (x_1^0,\ldots,x_n^0)\in\R^n$ the initial condition, and $\bftheta = (\theta_1,\ldots,\theta_p)\in\R^p$ are the parameters.  Typically only some of the state variables are observed and thus the, the {\it observation model}  is given by
+\begin{equation}\label{mod:obs}
+\bfy(t;\bftheta) = \bfg(\bfx(t;\bftheta);\bftheta),
+\end{equation}
+where $\bfy\in\R^m$ is the output.  In many practical problems we are given a set of measurements sampled at some specific times is known
+\begin{equation}\label{mod:mea}
+\{y_1,\ldots, y_d\},\quad \text{sampled at  }\quad t_1,\ldots, t_d.
+\end{equation}
+% To be able to study the uncertainties in our model  we must assume a {\it statistical model}
+%\begin{equation}\label{mod:sta}
+%Y_j=\bfy(t_j,\bftheta_0)+\varepsilon_j,\quad \text{for} \quad j=1,\ldots,d,
+%\end{equation}
+%where the errors $\varepsilon_j$  are independent and identically distributed (i.i.d.) random variables with  (1) zero mean; and (2)  finite (co)variance. Under the above assumptions we have  the mean equals to the model output and the  variance of observation is constant in time \cite{Cintron-Arias2009}.
+
+
+The central point of this work is to determine the relative contribution of the model's parameters $\bftheta$ on the model output $\bfy(t;\bftheta)$. {\color{red}{{\bf ADAM}: Expand and precisely define the goal of the sensitivity analysis, both global and local. I am also using response and output interchangeably and we should sort terminology out at some point.}}
+
+%-----------------------------------------------------------
+\subsection{Morris method}
+%-----------------------------------------------------------
+
+The Morris method is a technique for screening the parameters of a model in an efficient manner \cite{Morris1991}. The aim is to identify the most important parameters, i.e. those that produce the most variability in the solution, and exclude the least important from further analyses \cite{Saltelli2006}. The method is especially useful in cases where the model has many parameters and it is computationally expensive to obtain solutions. The main disadvantage of this method is that the sensitivity measures are qualitative, the price paid for the efficiency of the method.
+
+\smallskip
+
+The Morris method is a global sensitivity analysis in the sense that all of the parameters are varied simultaneously and over their entire range. The Morris method effectively traverses the entire parameter space using numerical experiments to collect information about the response of the model. This is in contrast to the local sensitivity analysis presented later, that is determined using the gradient of the response in the vicinity of a set of optimal parameter values.
+
+\smallskip
+
+The sensitivity measures being computed in the Morris Method are related to the absolute sensitivity functions,
+\begin{equation}
+  \label{eq:asf}
+  \frac{\partial \mathbf{x}(t,\boldsymbol{\theta})}{\partial \theta_j},
+\end{equation}
+which will be covered in more detail later. Initially the model parameters are scaled such that $\theta_j/\alpha_j=\hat{\theta}_j \in \left[0, 1 \right]$ and the vector of scaled parameters defined as $\boldsymbol{\hat{\theta}} = (\hat{\theta}_1,\ldots,\hat{\theta}_p)\in\R^p$. Considering the specific response $x_i$ we then have,
+\begin{equation}
+  \label{eq:asf-scale}
+  \alpha_j\frac{\partial x_i}{\partial \theta_j}=\frac{\partial x_i}{\partial \hat{\theta}_j},
+\end{equation}
+which is an important result when comparing to normalised sensitivity measures later in this paper.
+
+Taking a taylor expansion of $x_i(t,\boldsymbol{\hat{\theta}})$ about the point $\hat{\theta}_j\pm\Delta\hat{\theta}_j$, where we have abused notation slightly defining $x_i(t,\boldsymbol{\theta})=x_i(t,\boldsymbol{\hat{\theta}})$, one obtains,
+\begin{equation}
+  \label{eq:asf-expand}
+  \frac{\partial x_i(t,\boldsymbol{\hat{\theta}})}{\partial \hat{\theta}_j}\approx\frac{x_i(t,\boldsymbol{\Delta\hat{\theta}})-x_i(t,\boldsymbol{\hat{\theta}})}{\pm\Delta\hat{\theta}_j}=E_j(\mathbf{x}),
+\end{equation}
+where $\boldsymbol{\Delta\hat{\theta}}=(\hat{\theta}_1,\hat{\theta}_2,\dots,\hat{\theta}_j\pm\Delta\hat{\theta}_j,\dots,\hat{\theta}_p)$. Essentially the parameters $\theta_j$ are varied one-at-a-time (OAT) to obtain an approximation of the local gradient of the function $\mathbf{x}$. The scaled quantity, $E_j(\mathbf{x})$, related to the absolute sensitivity function, is defined as the elementary effect of the $j$th factor at a point $\boldsymbol{\hat{\theta}}$.
+
+\smallskip
+
+In the Morris method the parameter space is `discretised' into a grid of equally spaced points separated by $\Delta\hat{\theta}_j = 1 / \left( l - 1 \right)$, where $l$ is the number of grid points for each parameter. A finite distribution $F_j$ of the elementary effects $E_j(\mathbf{x})$ is then constructed by randomly sampling $\boldsymbol{\hat{\theta}}$ from the finite grid.
+
+\smallskip
+
+This distribution, $F_j$, of elementary effects is characterised by its mean and standard deviation. A large value of the mean would indicate that the parameter $\theta_j$ has an important effect on the solution $\mathbf{x}$. A large standard deviation indicates that the solution also depends on the values of the other parameters, i.e. there are interactions between the parameters, or the response is nonlinear.
+
+\smallskip
+
+The $E_j(\mathbf{x})$ by their definition are similar to normalised local sensitivity measures, differing only by their normalisation. What enables the Morris method to be called a global sensitivity analysis is the sampling of these local measures throughout the whole parameter space. It is the statistics of these local sensitivity measures that form the global sensitivity measures in the Morris method.
+
+%-----------------------------------------------------------
+\subsection{Sensitivity functions}
+%-----------------------------------------------------------
+
+\text{}{\color{red}{{\bf ADAM}: Page 11 of Saltelli book he states that you should not use local SA whne your model is nonlinear and various input parameters vary by orders of magnitude - referencing Cukier et al. 1973}}
+
+\smallskip
+
+Absolute sensitivity functions (ASF) (also called traditional  sensitivity functions \cite{Banks2007a, Banks2010}) are a common tool used in various areas of mathematical modeling \cite{Turanyi1990, Banks2005, Capaldi2012, MahStuOttOlu13, Mader2014} to study the influence of the variations in parameters on the model's output and/or initial conditions.
+
+\smallskip
+
+
+Mathematically, ASF are defined as the derivatives of the model's state variable with respect to the parameters
+\begin{equation}
+\bfs_{\theta_j} (t) = \frac{\p \bfx (t,\bftheta)}{\p \theta_j},\qquad j=1,\ldots, p
+\end{equation}
+or the initial conditions
+\begin{equation}
+\bfr_{x^0_j} = \frac{\p \bfx (t,\bftheta)}{\p x^0_j},\qquad j = 1,\ldots, n.
+\end{equation}
+Here $\theta_j$ is the j$th$ component of the parameter vector $\bftheta$, and  $x^0_j$ is the j$th$ component of the vector of initial conditions $\bfx^0$. Thus, both $\bfs_{\theta_j}$ and $\bfr_{x^0_j}$ are the column vectors of the sensitivity matrices $S(t)$ and $R(t)$, respectively.
+
+\smallskip
+
+Since usually we do not have a closed-form solutions of our dynamic model, the sensitivities are often calculated using the following \emph{sensitivity equation}
+\begin{equation}\label{ASF:eq}
+\frac{d}{dt} S(t) = \frac{\p \bff}{\p \bfx} S(t) + \frac{\p \bff}{\p \bftheta}
+\end{equation}
+with an initial condition
+\begin{equation}\label{ASF:ic}
+S(0) = \bf0_{n\times p}.
+\end{equation}
+The expressions $\p \bff/\bfx$ is the  $n\times n$ Jacobian matrix of the dynamic model \eqref{mod:dyn};  and the $\p \bff/\p \bftheta$ is the $n\times p$ matrix of the derivatives of the vector field $\bff = \bff(t,\bfx;\bftheta)$ with respect to the parameters $\bftheta$. Similarly, the sensitivities with respect to the initial condition $\bfx_0$ are computed as
+\begin{equation}\label{ASF:r}
+\frac{d}{dt} R(t) = \frac{\p \bff}{\p \bfx} R(t) 
+\end{equation}
+with an initial condition
+\begin{equation}\label{ASF:rx0}
+R(0) = I_{n\times n},
+\end{equation}
+where $I_{n\times n}$ is the $n\times n$ identity matrix. The specific choice of the initial conditions in \eqref{ASF:ic} is a consequence of  $S(0) = \p\bfx_0/\p \bftheta = \bf0_{n\times p}$; and since $R(0) = \p\bfx_0/\p \bfx_0 = I_{n\times n}$, hence initial conditions for the sensitivities with respect to initial conditions.
+
+\smallskip
+
+The ASF described above and defined in \eqref{ASF:eq}-\eqref{ASF:rx0} are an important tool for understanding the sensitivity of the output with respect to \emph{individual} parameters. However, since  typically the parameters have different units and the state-variables may vary within different orders of magnitude,  it might be more convenient to work instead with \emph{relative sensitivity functions} (RSF), which are defined as \cite{OlufOtt13}
+\begin{equation}\label{RSF}
+\sigma_{\theta_j}(t,\bftheta)= \bfs_{\theta_j}\frac{\theta_j}{\bfx(t,\bftheta)} =\frac{\p \bfx(t,\bftheta)}{\p \theta_j} \cdot  \frac{\theta_j}{\bfx(t,\bftheta)} .
+\end{equation}
+Similarly we define the  relative sensitivities with respect to initial conditions.
+%\begin{equation}
+%\rho_{x^0_j}(t,\bftheta)= \bfr_{\theta_j}\frac{\theta_j}{\bfx(t,\bftheta)}.
+%\end{equation}
+
+
+%%-----------------------------------------------------------
+%\subsection{Uncertainty quantification}
+%%-----------------------------------------------------------
+%
+%Here we review an elementary approach to the approximation of the uncertainties related to the ordinary least squares estimator  \cite{Banks2014}.
+%
+%\smallskip
+%
+%\noindent {\bf Approximate theory.} The {\it ordinary least squares estimator} $\bftheta_{OLS}$ is a random variable that minimizes $J(\theta|Y)$ on $\Theta\subset R^p$,  where
+%\begin{equation}\label{ols}
+%J(\theta|Y)=\sum_{j=1}^d|Y_j-\bfg(t_j;\theta)|^2.
+%\end{equation}
+%Under some regularity and sampling conditions it can be shown that the estimator $\bftheta_{OLS}$ is distributed approximately  according to multivariate normal distribution
+%\begin{equation}
+%\bftheta_{OLS}\distas{} \cN_p\Big(\bftheta_0, \Sigma_0\Big),
+%\end{equation}
+%where 
+%\[
+%\Sigma_0=\sigma_0^2\big[d\,\Omega_0\big]^{-1},\quad\text{and}\quad \Omega_0=\lim_{d\to 0}\dfrac{1}{d}S^d(\bftheta_0)^{\top}S^d(\bftheta_0).
+%\]
+%The  $d\times n$ matrix  $S(\bftheta_0)$ is the so-called  {\it sensitivity matrix} and is defined as
+%\begin{equation}
+%S_{jk}(\bftheta_0)=\frac{\p \bfg(t_j,\bftheta)}{\p \theta_k}|_{\bftheta=\bftheta_0},\quad j=1,\ldots,d;\quad k=1,\ldots,p.
+%\end{equation}
+%
+%
+%\medskip
+%
+%\noindent {\bf Realizations and approximations.} Typically $\bftheta_0$ and $\sigma_0^2$ are unknown and must be estimated by $\hat \bftheta_{OLS}$ and $\hat \sigma_{OLS}^2$ using realizations (i.e. the data) $y_1,\ldots,y_d$  of the random variables $Y_1,\ldots,Y_d$, i.e. 
+%\begin{equation}
+%\begin{aligned}
+%&\hat \bftheta_{OLS}= \argmin_{\bftheta\in\Theta} \sum_{j=1}^d[y_j-y(t_j,\bftheta)]^2\\
+%&\hat \sigma^2_{OLS} = \frac{1}{d-p} \sum_{j=1}^d[y_j-y(t_j,\bftheta_{OLS})]^2.
+%\end{aligned}
+%\end{equation}
+%Thus, the approximation of the sampling distribution of the estimator $\bftheta_{OLS}$ is given by
+%\[
+%\bftheta_{OLS}\approx \cN_p\Big(\hat \bftheta_{OLS}, \hat \Sigma_{OLS}\Big),
+%\]
+%where
+%\[
+%\hat \Sigma_{OLS} = \hat \sigma_{OLS}^2 \Big[S(\hat\bftheta_{OLS})^{\top}S(\hat \bftheta_{OLS})\Big]^{-1}.
+%\]
+%
+%%where $F(\bftheta_0)= S(\bftheta_0)^{\top}S(\bftheta_0)$ is a $p\times p$ matrix known as the Fisher information matrix. 
+%
+%\smallskip
+%
+%Finally, the standard errors $SE_k(\hat \bftheta_{OLS})$ for the $k$th parameter in the vector $\hat \bftheta_{OLS}$ is computed by 
+%\[
+%SE_k(\hat\bftheta_{OLS}) =  \sqrt{\big(\hat \Sigma_{OLS}\big)_{kk}},\qquad k=1,\ldots,d.
+%\]
+
+
+
+\begin{table}[t]
+{\footnotesize
+\centering
+\begin{tabular}{l|l|l|l|l|l|c}
+{\bf }				& {\bf Definition}				&{\bf Value}  			&{\bf Min}  			&{\bf Max}      			&{\bf Units}							&{\bf Ref.}\\ \hline
+$\Delta G_0$				&Gibbs free energy				&$-15802.19$			&-					&-					&$\mathrm{J\cdot mol^{-1}}$				&--\\  
+$R$						&gas constant					&$8.3145$			&-					&-					&$\mathrm{kJ\!\cdot\!mol^{-1}\!\cdot\!K^{-1}}$	&--\\ 
+%$K_n$					&effect of nutrient				&$0$					&-					&-					&									&--\\ 
+$T$						&temperature					&$310.15$			&-					&-					&$\mathrm{K}$							&--\\  
+$\Delta G_p$				&phosphorylation energy			&$45000$				&-					&-					&$\mathrm{J\cdot mol^{-1}}$				&--\\ \hline
+%{\bf Parameter}				& {\bf }						&{\bf }      				&{\bf }				&					&									&{\bf }\\ 
+$k$						&rate constant					&$2.5\!\times\!10^{-6}$	&$0.2\!\times\!10^{-6}$	&$6.5\!\times\!10^{-6}$	&$\mathrm{mol\!\cdot\! g^{-1}\!\cdot\! s^{-1}}$	&\cite{Smith1978}\\ 
+$K_{Ac}$					&half-saturation					&$0.005$				&$1.0$				&$29.1$				&$\mathrm{mmolal}$						&\cite{Smith1978}\\ 
+$Y$						&growth yield					&$2.1$				&$2.1$				&$4.0$				&$\mathrm{g\cdot mol^{-1}}$				&\cite{Smith1978}\\ 
+$m$						&maintenance rate				&$2.2\!\times\!10^{-7}$	&$5.1\!\times\!10^{-8}$	&$9.4\!\times\!10^{-5}$	&$\mathrm{s^{-1}}$						&\cite{Lawrence1969}\\ 
+$\chi$					&stoichiometric number			&$2.0$				&$1.0$				&$2.0$				&per reaction							&\cite{Jin2012}\\ 
+$\nu_p$					&ATP yield					&$0.5$				&$0$					&$1.0$				&per reaction							&\cite{Jin2012}\\ \hline
+\end{tabular}
+\caption{{\bf Physical constants and parameters.} The values of the physical constants and the baseline values of the parameters used in the simulation and sensitivity analysis.}
+\label{Tab:param}
+}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\section{Microbial reaction}\label{Sec:model}
+%%%%%%%%%%%%%%%%%%%%%%%
+
+%-----------------------------------------------------------
+\subsection{The model}
+%-----------------------------------------------------------
+
+\begin{figure}[]
+\begin{center}
+\includegraphics[width=10cm]{Figures/fit.eps}
+\caption{Model's plots using the nominal values of parameters.}\label{Fig:fit}
+\end{center}
+\end{figure}
+
+
+{\it Methanogenesis.} Acetoclastic methanogens save energy by disproportionating acetate to bicarbonate and methane $(CH_4)$, a process called acetoclastic methanogenesis. This process can be represented using the reaction equation
+\[
+\ce{Acetate +H2O <=>>  HCO^{-}_3 + CH4}.
+\]
+It can be described mathematically as follows \cite{Jin2011}. Let  $m_{Ac}$, $m_{HCO_3^-}$ and $m_{CH_4}$ be the molal (mol per kg water) concentrations of acetate, bicarbonate, and methane, respectively; and  $[X]$ be the concentration of methanogen cells  ($\mathrm{g\cdot kg^{-1}}$). The rate $r$ ($\mathrm{mol\cdot kg^{-1}\cdot s^{-1}}$) of methanogenesis is defined as 
+\[
+r=-\frac{dm_{Ac}}{dt}=\frac{dm_{HCO_3^-}}{dt}=\frac{dm_{CH_4}}{dt}
+\]
+and calculated according to the following formula
+\begin{equation}\label{Model:r}
+r=k\cdot [X]\cdot \frac{m_{Ac}}{m_{Ac}+K_{Ac}}\cdot \big[1-E_t\big]
+\end{equation}
+where $k$ is a rate constant $(\mathrm{mol\cdot (g\cdot biomass)^{-1}\cdot s^{-1}})$, $K_{Ac}$ is the half-saturation constant (molal), and 
+\begin{equation}\label{Model_Et}
+E_t=\exp\Big(\frac{\Delta G+\nu_p\cdot\Delta G_p}{\chi R T}\Big),\qquad \Delta G= \Delta G_0+RT \ln\Big(\frac{m_{HCO_3^-}\cdot m_{CH_4}}{m_{Ac}}\Big),
+\end{equation}
+where $\chi$ is the dimensionless stoichiometric number, $R$ is the gas constant ($8.3145\,\,\mathrm{J}\cdot \mathrm{mol}^{-1}\cdot \mathrm{K}^{-1}$), $T$ the absolute temperature, $\nu_p$ is the ATP yield, i.e. the  number of ATP synthesized per acetate consumed by methanogen, $\Delta G_p$ is the phosphorylation energy  $J\cdot mol^{-1}$, the energy required by ATP synthesis, and the constant $\Delta G_0$ (15802.1961 $\mathrm{J\cdot mol^{-1}}$) is the standard value of the Gibbs free energy change $\Delta G$. 
+
+\medskip
+
+{\it Growth and Maintenance.} Microbial growth is a process that converts carbon, nitrogen, and other nutrients to cells. If acetate and ammonium are the carbon and nitrogen sources, this process can be represented
+using the following equation,
+\[
+\ce{\nu_{Ac}\cdot Acetate + \nu_{N}\cdot NH^{+}_{4} + \ldots (\text{other nutrients}) -> cell}
+\]
+where $\nu_{Ac}$ and $\nu_{N}$ are stoichiometric coefficients. The rate of growth, $d[X]/dt\, (g\cdot kg^{-1}\cdot s^{-1})$, is calculated from the rate $r$ of methanogenesis and the specific rate $m\,(s^{-1})$ of maintenance,
+\[
+\frac{d[X]}{dt}=Y\cdot r -m\cdot [X]
+\]
+where $Y$ is the growth yield, $g$ of cell weight per mol acetate consumed by methanogens ($\mathrm{g\cdot mol^{-1}}$). The growth rate in the above equation  reflects the laboratory conditions due to abundance of the nutrients. In other words, nutrient concentrations do not impact rates of growth.
+
+
+
+%-----------------------------------------------------------
+\subsection{Experimental data}
+%-----------------------------------------------------------
+A representative acetoclastic methanogen is Methanosarcina (Msr.) barkeri. Its kinetics has been extensively studied in laboratory batch reactors. For example, Westermann\,et\,al. \cite{Westermann1989} reported the progress of acetoclastic methanogenesis by Msr. barkeri strain 227, see Table~\ref{Tab:data}.  In their experiments , strain 227 grew at $37\, \mathrm{C}$ in a culturing medium that had pH\,7 and contained $3.5\,\mathrm{mmolal}$ acetate and $45.2\,\mathrm{mmolal}$ bicarbonate. Methane concentration at the beginning of the experiment can be assumed at a small value, $10^{-3}\,\mathrm{mmolal}$. As the experiments progressed  acetate concentration decreased and decreased to 1 mmolal after day 15. 
+
+\begin{table}[h!]
+{
+\centering
+\begin{tabular}{c|cccccccccc}
+days &0&2&4&6&8&10&12&14&16&18\\\hline
+Acetate (mmolal) &3.68 & 2.54 & 1.90 & 1.85 & 1.61 & 1.31 & 1.28 & 1.17 & 1.02 & 0.97
+\end{tabular}
+}
+\caption{Experimental data of Westermann\,et. al. \cite{Westermann1989}.}\label{Tab:data}
+\end{table}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\section{Results and discussion}\label{Sec:results}
+%%%%%%%%%%%%%%%%%%%%%%%
+The microbial reaction model described in Section~\ref{Sec:model} can be written as  a four-dimensional dynamical system \eqref{mod:dyn}, where $\bfx = (m_{Ac}, m_{HCO_3^-},  m_{CH_4}, [X])$, and 
+ \begin{equation}\label{Model}
+\bff(t,\bfx;\bftheta) =\Big(- r,r,r, Y\cdot r -m\cdot [X]\Big).
+\end{equation}
+with the initial conditions  $\bfx_0 = (m_{Ac}^0, m_{HCO_3^-}^0,  m_{CH_4}^0, [X]^0)$. Recall that $r$ is defined in \eqref{Model:r}. The  parameters $\bftheta$ of the model (listed in Table~\ref{Sec:model}) include biological constants that vary little with environmental conditions, and extrinsic parameters that depend on environmental conditions. Biological constants include the rate constant $k$, the ATP yield $\nu_p$, and the
+phosphorylation energy $\Delta G_p$, the stoichiometric number $\chi$, and the growth yield $Y$. Extrinsic parameters are the half-saturation constant $K_{Ac}$ and the specific maintenance rate $m$. 
+
+\smallskip
+
+In Figure~\ref{Fig:fit} we present the simulation of the model using the nominal values of the parameters given in Table~\ref{Tab:param}, which have been calibrated to reflect the experimental data of Westermann\,et. al. \cite{Westermann1989} (reproduced in  Table~\ref{Tab:data})  and shown in the figure by blue dots. In this study the  simulation have been performed with the following initial condition
+\begin{equation}\label{Res:sic}
+\bfx_0= (0.0035, 0.0452, 1.0\times10^{-6}, 9.0\times 10^{-3}).
+\end{equation}
+
+\smallskip
+
+We stress that although model \eqref{Model} has four state variables,  only one  $m_{Ac}$ is measured. Thus the observation model is given by $\bfy(t;\bftheta)=m_{Ac}$. 
+Since the gas constant $R$  and standard Gibbs free energy change $\Delta G_0$ are physical constants; and  the temperature $T$ as well as phosphorylation energy $\Delta G_p$ is assumed to be fixed, in this paper we consider the sensitivity of the output  with respect to remaining six constants, written in the vector form
+\begin{equation}\label{par:sens}
+\bftheta^s = (K_{Ac}, m, Y, \nu_p, k, \chi).
+\end{equation}
+
+
+%-----------------------------------------------------------
+\subsection{Parameter screening}\label{Res:Morris}
+%-----------------------------------------------------------
+
+\smallskip
+
+For the methanogenesis model the results of the Morris method are shown
+separately in Figure \ref{fig:morrisfull} and discussed in detail in Sec.~\ref{Res:Morris}. The numbers correspond to: $k$,	
+$\nu_p$, $\Delta G_p$, $\chi$, $Y$, $K_{\tmop{ac}}$, $m$ and the 8th parameter is a dummy
+parameter = 0.
+
+
+Two sets of parameter ranges have been used to perform screening using the Morris method. The first are obtained by varying the optimal values given in Table\,\ref{Tab:param} by $\pm 25$. This is done to observe local sensitivities about the optimal value which are distinct from the true global sensitivities. The second are those specified in Table\,\ref{Tab:param} in the min and max columns. This is the global sensitivity analysis with parameter ranges derived from the literature to represent values commonly used with this model.
+
+\smallskip
+
+The results of the local analysis are presented in Figure~\ref{fig:morrisfull}. The mean values of the main effects clearly show that the parameter $\nu_p$ has the largest impact on the values of $m_\textrm{Ac}$. All other parameters appear to have an initial effect in the first 10 days, which begins to decay to zero from day 3. The most important parameters, apart from $\nu_p$, are $k$, $\chi$ and $K_{\textrm{Ac}}$. The standard deviation of the main effects, on the whole, appear to be less than the main effects indicating that interactions between parameters and nonlinear responses are not dominating.
+
+\smallskip
+
+The global sensitivities are presented in Figure \ref{fig:morrisfull}. The standard deviation of the main effects appear to dominate over the means in the global analysis. There is a clear division between sensitivities during the transient and steady state behaviour of $m_\textrm{Ac}$. During the transient period of the first 2 days $K_{\textrm{Ac}}$ is the most important parameter followed by $k$, $\nu_p$ and $m$ in no particular order. In the steady state from 2 days onwards the most important parameters are $m$ and $K_{\textrm{Ac}}$. The magnitude of the standard deviations compared to the means indicates that the response of the model to the parameters is complex.
+
+\smallskip
+
+The drastic change in the importance of the parameter $m$ between the local and global analysis is likely due to it having the role of a time constant in equation \eqref{Model}. Changes in this parameter appear to affect the system dynamics by changing the amount of time to reach a steady state. In the global analysis for some values of $m$ the system does not appear to reach a steady state after 1000s of days. This behaviour is leading to $m$ being an important parameter for the full time period under consideration. In the local analysis however the relatively small changes in $m$ change the time to reach steady state to within a few days of the optimum, and have no impact on the long term behaviour.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=7cm]{Figures/50pc_param_range_morris.eps}
+\includegraphics[width=7cm]{Figures/full_param_range_morris.eps}
+\caption{{\bf Morris method results.} Results for varying optimal parameter values $\pm 25\%$ (left) and for min/max parameter ranges given in Table\,\ref{Tab:param} (right).}
+\label{fig:morrisfull}
+%\label{fig:morris25pc}
+\end{center}
+\end{figure}
+
+%-----------------------------------------------------------
+\subsection{Local sensitivity analysis}
+%-----------------------------------------------------------
+
+\begin{figure}[t]
+\begin{center}
+\includegraphics[width=12cm]{Figures/sens_rel_6par.eps}
+\caption{{\bf Relative sensitivity functions.}}\label{Fig:sens}
+\end{center}
+\end{figure}
+
+The goal of the sensitivity analysis is to quantitatively describe how the model output response to changes in the parameters. In particular, \emph{local} sensitivity analysis can be used to pinpoint time intervals when the system is most sensitive to those changes. 
+
+\smallskip
+
+Here we  determine the sensitivities of the models output $m_{Ac}$ with respect to $K_{Ac}$, $m$,  $Y$, $\nu_p$, $k$ and $\chi$, i.e. we consider the following six time-dependent functions 
+{\footnotesize
+\begin{equation}\label{Res:sens}
+s_{K_{Ac}} = \frac{\p m_{Ac}}{\p K_{Ac}},\,\,  s_{m}=  \frac{\p m_{Ac}}{\p m},\,\, s_{Y}= \dfrac{\p m_{Ac}}{\p Y},\,\,  s_{\nu_p}= \dfrac{\p m_{Ac}}{\p \nu_p},\,\,  s_{k}= \dfrac{\p m_{Ac}}{\p k},\,\,  s_{\chi}= \dfrac{\p m_{Ac}}{\p \chi}.
+\end{equation}
+}
+
+Since we do not have explicit solutions for model \eqref{Model} we compute the sensitivities \eqref{Res:sens} by implementing the equation \eqref{ASF:eq} with the initial conditions \eqref{ASF:ic}. Note that in our example, the time-dependent $4\times6$ sensitivity matrix $S(t)$ is
+\begin{equation}\label{Res:sens:S}
+{\footnotesize
+S(t)= 
+\left(\begin{array}{cccccccc}
+\dfrac{\p m_{Ac}}{\p K_{Ac}} 		& \dfrac{\p m_{Ac}}{\p m} 			& \dfrac{\p m_{Ac}}{\p Y} 		& \dfrac{\p m_{Ac}}{\p \nu_p} 		& \dfrac{\p m_{Ac}}{\p k} 		& \dfrac{\p m_{Ac}}{\p \chi}  \\
+\\
+\dfrac{\p m_{HCO_3^-}}{\p K_{Ac}} 	& \dfrac{\p m_{HCO_3^-}}{\p m} 	&  \dfrac{\p m_{Ac}}{\p Y} 		& \dfrac{\p m_{Ac}}{\p  \nu_p} 		& \dfrac{\p m_{Ac}}{\p k} 		& \dfrac{\p m_{Ac}}{\p \chi} \\
+\\
+\dfrac{\p m_{CH_4}}{\p K_{Ac}} 		& \dfrac{\p m_{CH_4}}{\p m} 		&  \dfrac{\p m_{Ac}}{\p Y} 		& \dfrac{\p m_{Ac}}{\p  \nu_p} 		& \dfrac{\p m_{Ac}}{\p k} 		& \dfrac{\p m_{Ac}}{\p \chi} \\
+\\
+\dfrac{\p [X]}{\p K_{Ac}} 			& \dfrac{\p [X]}{\p m} 				& \dfrac{\p m_{Ac}}{\p Y} 		& \dfrac{\p m_{Ac}}{\p  \nu_p}		& \dfrac{\p m_{Ac}}{\p k} 		& \dfrac{\p m_{Ac}}{\p \chi}  \\
+\end{array}\right).	
+}
+\end{equation}
+The gradients $\p \bff/\p\bfx$ and $\p \bff/\p\bftheta^s$ are respcetively $4\times4$  and $4\times2$ time-dependent matrices and are computed for the vector-function 
+\[
+\bff = \Big(-r, r, r, Y\cdot r -m\cdot [X]\Big),
+\]
+where $r$ is defined in \eqref{Model:r},  the state-variables are $\bfx = \big(m_{Ac}, m_{HCO_3^-}, m_{CH_4} ,[X] \big)$, and the parameter vector is $\bftheta^s = (K_{Ac},m,Y,\nu_p,k,\chi)$. Note that although we are mainly interested in determining the functions \eqref{Res:sens}, in practice one computes numerically the sensitivity matrix \eqref{Res:sens:S} together with the original model \eqref{Model} for a given initial contains of the model and zero initial conditions for the sensitivity equation \eqref{ASF:ic}.
+
+\smallskip
+
+Recall that each of the sensitivities given in \eqref{Res:sens} are the first order measure of the units change in the variable $m_{Ac}$ with respect to a unit change in the one of the six parameters  $K_Ac$, $m$, $Y$,  $\nu_p$, $k$ and $\chi$. Thus, the interpretation of the sensitivities are closely linked to the specific units assigned to the state variables and parameters. In general, which is also true for the model \eqref{Model},  the parameters have different units and therefore the sensitivities cannot be compared with each other \cite{Rabitz1983, Banks2007a}.  As a way to overcome this obstacle one can apply a normalized or relative sensitivities as described in \eqref{RSF}, where here $\theta_j$ is one of the parameters $\{K_{Ac}, m, Y, \nu_p, k, \chi\}$ and $\bfx(t,\bftheta)$ is the observable state-variables assumed to be  $m_{Ac}$.  
+
+\smallskip
+
+Thus, in Figure~\ref{Fig:sens} we plot the RSFs for the baseline values of the parameters  given in Table \ref{Tab:param} and the standard initial conditions \eqref{Res:sic}. ({\color{red}{ADAM:  Later discuss here which parameters are the most sensitive from RSF perspective}})
+
+\smallskip
+
+Another simple (and important) observation (see the Appendix for more details) is that the values of the steady-states  only depend on parameters $\theta_{s} = \{\nu_p, \chi\}$  and constants $\Delta G_0,  \Delta G_p, R, T$ but do not depend on parameters $\theta_d=\{K_{Ac}, m, k, Y\}$.  Thus, one might be tempted to conclude that the sensitivities of $\theta_d$ would be much smaller during the final phase of the simulation, passed the transient dynamics.  Indeed note that as shown in Figure~\ref{Fig:sens} the sensitivities of $K_{Ac}$, $Y$ and $k$ approach zero but the parameter $m$ is still sensitive in the considered interval. 
+
+
+%Points for discussion:
+%\begin{itemize}
+%
+%\item The information in the previous bullet-point allows us to identify the intervals at which the data should be collected in order to identify or estimate  (solve the inverse problem) the respective parameters. 
+%
+%\item In order to determine the relative importance on the output of the parameters $K_{Ac}$ and $m$, we imposed an $\|\cdot \|_2$ norm of the each of the sensitivities $\sigma_{K_{Ac}}$ and $\sigma_m$ and obtained $\|\sigma_{K_{Ac}}\| =  1.9642$ and $\|\sigma_m\| =  0.0970$.
+%\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Acknowledgement}
+%%%%%%%%%%%%%%%%%%%%%%%
+A.M. acknowledges the support of the EPSRC project EP/K036157/1.
+
+%-----------------------------------------------------------
+%   Bibliography
+%-----------------------------------------------------------
+\bibliographystyle{plain}
+\bibliography{biblioJab}
+%-----------------------------------------------------------
+
+
+\clearpage
+
+
+
+\section*{Appendix A: Steady-state analysis}\label{Sec:ss}
+%%%%%%%%%%%%%%%%%%%%%%%
+Our first result is the analytical determination of  the steady-state  for the methanogenesis model \eqref{Model}  given the  initial condition  
+\begin{equation}\label{Res:ic}
+\bfx_0=(m^0_{Ac}, m^0_{HCO_3^-}, m^0_{CH_4}, [X]^0).
+\end{equation}
+This analysis provides insight into the model dynamics, which is discussed in the context of the sensitivity analysis.  In particular it allows to identify the parameters that play the role in the transient and the steady-state part of the dynamics. 
+
+\smallskip
+
+Recall that the set of steady-states of the dynamical system \eqref{Model} is computed by solving the system of algebraic equations
+\[
+\frac{dm_{Ac}}{dt}=\frac{dm_{HCO_3^-}}{dt}=\frac{dm_{CH_4}}{dt}=\frac{d[X]}{dt}=0
+\]
+with respect to state variables $m_{Ac}$, $m_{HCO_3^-}$, $m_{CH_4}$, and $ [X]$. One easily obtains
+\begin{equation}\label{Res:sseq}
+m_{Ac} = m_{HCO_3^-}\cdot  m_{CH_4}  \cdot (E_t)^{\chi}, \qquad [X]=0.
+\end{equation}
+where $E_t$ is defined in \eqref{Model_Et}. Thus there is a two-dimensional manifold of the steady-states, parametrized, for example, as
+\begin{equation}\label{Res:sseq_par}
+\Big(m_{HCO_3^-}\cdot  m_{CH_4}  \cdot (E_t)^{\chi}, m_{HCO_3^-}, m_{CH_4} ,0 \Big).
+\end{equation}
+
+From the practical point of view we wish to know, what is the asymptotic behaviour (as $t\to \infty $) of the solutions of model \eqref{Model} starting at some arbitrary initial condition \eqref{Res:ic}. Since the set of steady-states \eqref{Res:sseq_par} is not isolated (it is a surface not a point), we require further investigation.  First we note that in model \eqref{Model} the first three equations are \emph{decoupled} from the fourth equation. In other words, the first three equations involve only  variables $m_{Ac}, m_{HCO_3^-}, m_{CH_4}$, and thus they can be solved separately from the fourth equation involving additionally the variable $[X]$.  Moreover, we also note that by dividing the right-hand side of \eqref{Model} by the expression $r$, which is equivalent with only time-rescaling, we obtain a very simple system (for the first 3 equations)
+\begin{equation}\label{Res:scaled}
+\frac{d\overline m_{Ac}}{dt} = -1\qquad \frac{d\overline m_{HCO_3^-}}{dt} = 1\qquad  \frac{d\overline m_{CH_4}}{dt} = 1,
+\end{equation}
+where the ``overline" denotes that we are considering the rescaled system. Thus, given the initial condtion $(m^0_{Ac}, m^0_{HCO_3^-}, m^0_{CH_4})$, we obtain a simple solution
+\begin{equation}\label{Res:scaled_sol}
+\overline m_{Ac}(t) = m^0_{Ac}-t, \qquad \overline m_{HCO_3^-}(t)=m^0_{HCO_3^-}+t, \qquad \overline m_{CH_4}(t) = m^0_{CH_4}+t.
+\end{equation}
+Now, inserting the solutions \eqref{Res:scaled_sol} into the derived previously steady-state formula \eqref{Res:sseq} (or equivalently \eqref{Res:sseq_par}), we obtain a quadratic equation in the variable $t$, i.e. 
+\[
+m^0_{Ac}-t = (m^0_{HCO_3^-}+t)\cdot  (m^0_{CH_4}+t) \cdot (E_t)^{\chi},
+\]
+which can be easily solved for nonnegative $t$ (denoted $t_s$) to obtain
+\begin{equation}\label{Res:t}
+t_s=\frac{1}{2}\Big[-(E_t)^{-\chi}-m^0_{HCO_3^-}-m^0_{CH_4}+Q_t\Big]
+\end{equation}
+where
+\[
+Q_t = \sqrt{4 (E_t)^{-\chi}\cdot m^0_{Ac}-4m^0_{HCO_3^-}\cdot m^0_{CH_4} + ((E_t)^{-\chi}+m^0_{HCO_3^-}+m^0_{CH_4})^2}.
+\]
+
+Finally we can compute the steady-states of the model \eqref{Model} for an arbitrary initial condition \eqref{Res:ic}. to obtain
+\begin{equation}\label{Res:ss}
+\begin{aligned}
+m^{s}_{Ac}(\bfx_0) 		&= m^0_{Ac} 			- t_s\\
+m^{s}_{HCO_3^-}(\bfx_0) 	&= m^0_{HCO_3^-} 		+ t_s\\
+m^{s}_{CH_4}(\bfx_0)	&= m^0_{CH_4}		+ t_s\\
+[X]^{s}(\bfx_0) 			&= 0.
+\end{aligned}
+\end{equation}
+There are a number of useful observations one can make based on the analytically derived steady-states \eqref{Res:ss} for the model \eqref{Model}. For example, having explicit formulas \eqref{Res:ss} it is easy to determine \emph{a priori} the behaviour of the system for large time $t$. 
+
+\smallskip
+
+\begin{table}[t!]
+\begin{center}
+\begin{tabular}{l|l|l}
+steady-variable 				&theretical 	& simulation\\
+\hline
+$m^{s}_{Ac}(\bfx_0)$ 			&0.0013605	& 0.0013673\\
+$m^{s}_{HCO_3^-}(\bfx_0)$ 		&0.0473394	& 0.0473326\\
+$m^{s}_{CH_4}(\bfx_0)$			&0.0021404	& 0.0021336\\
+$[X]^{s}(\bfx_0) $				&0			& 0.0097574\\
+\hline
+\end{tabular}
+\caption{Comparison of the state-state computed analytically using \eqref{Res:ss} and by simulating model \eqref{Model}.}\label{Fig:sscomp}
+\end{center}
+\end{table}
+
+To test the correctness of the analytical formulas  of the steady-states \eqref{Res:ss} we compare them against the ``asymptotic" (for large $t$) values of the model's simulation. Using the baseline values of the parameters given in Table \ref{Tab:param} together with the vector of initial conditions  \eqref{Res:sic} the comparison of the values of the steady-states  computed using \eqref{Res:ss} and by simulating model \eqref{Model} are shown in Table \ref{Fig:sscomp}.
+
+%\begin{itemize}
+%
+%\item In principle it is possible to solve the inverse problem and fully determine which parameters are identifiable (see \cite{BelAst70, Cobelli1980} and \cite{MahMesSul14}) having only steady-state data.
+%
+%\item From the solutions  \eqref{Res:scaled_sol} of the rescaled system  \eqref{Res:scaled} one can fully understand the dynamics of the model. As mentioned, the first three equations of the model decouple form the fourth one. In the phase-space of the variables  $(m_{Ac}, m_{HCO_3^-}, m_{CH_4})$ the orbits of the differential system are \emph{straight lines} starting at the initial conditions and for $t\to \infty$ approaching the corresponding steady-state  given by \eqref{Res:ss}. 
+%\end{itemize}
+%
+
+
+
+%\begin{figure}
+%\begin{center}
+%\includegraphics[width=7cm]{Figures/Fig_ranking.png}
+%\includegraphics[width=7cm]{Figures/Fig_sens.png}
+%\caption{Local sensitivity analysis}
+%\end{center}
+%\end{figure}
+
+
+%%---------------------------------------
+%\begin{figure}[h]
+%\begin{center}
+%  \includegraphics[width=10cm]{Figures/morris-sample.eps}
+%  \caption{\label{fig1}}
+%\end{center}
+%\end{figure}
+
+
+%---------------------------------------
+%\begin{figure}
+%\begin{center}
+%\includegraphics[width=7cm]{Figures/fig1sheldon.eps}
+%\includegraphics[width=7cm]{Figures/fig2sheldon.eps}\\
+%\includegraphics[width=7cm]{Figures/fig3sheldon.eps}
+%\includegraphics[width=7cm]{Figures/fig4sheldon.eps}
+%\includegraphics[width=7cm]{Figures/fig5sheldon.eps}
+%
+%\caption{Morris' method results.}
+%\end{center}
+%\end{figure}
+
+
+
+%---------------------------------------
+
+%\begin{figure}
+%\begin{center}
+%\includegraphics[width=8cm]{Figures/full_param_range_morris.eps}
+%\caption{Morris method results for min/max parameter ranges given in Table\,\ref{Tab:param}.}
+%\label{fig:morrisfull}
+%\end{center}
+%\end{figure}
+
+
+
+\end{document}
+
+
+
+
+
+
