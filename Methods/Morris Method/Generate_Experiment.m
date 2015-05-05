@@ -10,7 +10,7 @@
 %   r = # random orientations
 %
 % returns:
-%
+%   A = cell array of experiments - each experiment is (p+1xp)
 
 function experiments = Generate_Experiment(k,p,r)
 

@@ -42,10 +42,10 @@ for i=1:nf
 end
 
 % plot a few time points
-% es=[est(2,:)];
-% rs=[rst(2,:)];
-% figure
-% plot_results
+es=[est(2,:)];
+rs=[rst(2,:)];
+figure
+plot_results
 % title('short times')
 % es=[est(end,:)];
 % rs=[rst(end,:)];
@@ -53,44 +53,44 @@ end
 % plot_results
 % title('long times')
 
-tspan = linspace(0,20*24*60*60,100);
-% mnt = zeros(length(mn),size(est,2));
-% sdt = mnt;
-% for i=1:size(est,1)
-%     es=[est(i,:)];
-%     rs=[rst(i,:)];
-%     [mnt(:,i) sdt(:,i)] = Process_Results(es,rs);
-% end
-% figure
-% subplot(3,1,1)
-% plot(tspan/60/60/24,abs(mnt'))
-% legend({'$k$','$\nu p$','$\chi$','$Y$','$K_{ac}$','$m$'},'Interpreter','LaTex','FontSize',20)
-% title('Mean vs Time','Interpreter','LaTex','FontSize',20)
-% axis([0 tspan(end)/60/60/24 0 max(max([mnt sdt]))*1.01])
-% set(gca,'FontSize',14)
-% 
-% subplot(3,1,2)
-% plot(tspan/60/60/24,sdt')
-% legend({'$k$','$\nu p$','$\chi$','$Y$','$K_{ac}$','$m$'},'Interpreter','LaTex','FontSize',20)
-% title('Standard Deviation vs Time','Interpreter','LaTex','FontSize',20)
-% axis([0 tspan(end)/60/60/24 0 max(max([mnt sdt]))*1.01])
-% set(gca,'FontSize',14)
+% tspan = linspace(0,20*24*60*60,100);
+mnt = zeros(length(mn),size(est,2));
+sdt = mnt;
+for i=1:size(est,1)
+    es=[est(i,:)];
+    rs=[rst(i,:)];
+    [mnt(:,i) sdt(:,i)] = Process_Results(es,rs);
+end
+figure
+subplot(3,1,1)
+plot(tspan/60/60/24,abs(mnt'))
+legend({'$a$','$b$'},'Interpreter','LaTex','FontSize',20)
+title('Mean vs Time','Interpreter','LaTex','FontSize',20)
+axis([0 tspan(end)/60/60/24 0 max(max([mnt sdt]))*1.01])
+set(gca,'FontSize',14)
 
-% % plot against solution
-% subplot(3,1,3)
-% mvt = zeros(size(est,1),1);
-% svt = mvt;
-% for i=1:size(est,1)
-%     mvt(i) = mean([rst{i,:}]);
-%     svt(i) = std([rst{i,:}]);
-% end
-% plot(tspan/60/60/24,mvt)
-% title('mac vs time','Interpreter','LaTex','FontSize',20)
-% xlabel('time (days)','Interpreter','LaTex','FontSize',20)
-% set(gca,'FontSize',14)
-% 
-% set(gcf,'PaperUnits', 'Inches', 'PaperPosition', [0 0 10 10])
-% print -depsc figure1
+subplot(3,1,2)
+plot(tspan/60/60/24,sdt')
+legend({'$a$','$b$'},'Interpreter','LaTex','FontSize',20)
+title('Standard Deviation vs Time','Interpreter','LaTex','FontSize',20)
+axis([0 tspan(end)/60/60/24 0 max(max([mnt sdt]))*1.01])
+set(gca,'FontSize',14)
+
+% plot against solution
+subplot(3,1,3)
+mvt = zeros(size(est,1),1);
+svt = mvt;
+for i=1:size(est,1)
+    mvt(i) = mean([rst{i,:}]);
+    svt(i) = std([rst{i,:}]);
+end
+plot(tspan/60/60/24,mvt)
+title('mac vs time','Interpreter','LaTex','FontSize',20)
+xlabel('time (days)','Interpreter','LaTex','FontSize',20)
+set(gca,'FontSize',14)
+
+set(gcf,'PaperUnits', 'Inches', 'PaperPosition', [0 0 10 10])
+print -depsc figure1
 
 
 % % time averaged plot
@@ -123,16 +123,7 @@ tspan = linspace(0,20*24*60*60,100);
 %% renormalise
 
 % compute normalisation inversion values
-parameters
-a = [false false true true false true true false true false true false];
-% p_low=scale_parameters(p,zeros(12,1),a);
-% p_high=scale_parameters(p,ones(12,1),a);
-fn = fieldnames(p);
-% getfield_low = @(x) getfield(p_low,x);
-% getfield_high = @(x) getfield(p_high,x);
-% pl=cellfun(getfield_low,{fn{a}}');
-% ph=cellfun(getfield_high,{fn{a}}');
-% inorm=ph-pl;
+a = [true true];
 
 % cycle through all experiments and times results applying normalisation
 
@@ -141,9 +132,7 @@ for j=1:size(est,2) % experiments
     for i=1:size(est,1) % times
         % remove normalisations
         for k=1:size(est{i,j},1)
-            p_curr=scale_parameters(p,est{i,j}(k,:),a);
-            getfield_p = @(x) getfield(p_curr,x);
-            pc=cellfun(getfield_p,{fn{a}}');
+            pc=scale_parameters(theta,est{i,j}(k,:),a);
             est{i,j}(k,:) = pc;
         end
         
@@ -163,9 +152,9 @@ for i=1:size(est,1)
     [mnt(:,i) sdt(:,i)] = Process_Results(es,rs);
 end
 figure
-subplot(3,1,1)
-plot(tspan/60/60/24,mnt')
-legend({'$k$','$\nu p$','$\chi$','$Y$','$K_{ac}$','$m$'},'Interpreter','LaTex','FontSize',20)
+% subplot(3,1,1)
+plot(tspan,mnt')
+legend({'$a$','$b$'},'Interpreter','LaTex','FontSize',20)
 title('Mean vs Time','Interpreter','LaTex','FontSize',20)
 % axis([0 tspan(end)/60/60/24 0 max(max([mnt sdt]))*1.01])
 set(gca,'FontSize',14)
@@ -179,16 +168,17 @@ for i=1:size(est,1) % times
 end
 
 % plot
-subplot(3,1,2)
-plot(tspan/60/60/24,mnt')
-legend({'$k$','$\nu p$','$\chi$','$Y$','$K_{ac}$','$m$'},'Interpreter','LaTex','FontSize',20)
+figure
+% subplot(3,1,2)
+plot(tspan,mnt')
+legend({'$a$','$b$'},'Interpreter','LaTex','FontSize',20)
 title('Mean vs Time','Interpreter','LaTex','FontSize',20)
 % axis([0 tspan(end)/60/60/24 0 max(max([mnt sdt]))*1.01])
 set(gca,'FontSize',14)
 
-subplot(3,1,3)
-plot(tspan/60/60/24,sdt')
-legend({'$k$','$\nu p$','$\chi$','$Y$','$K_{ac}$','$m$'},'Interpreter','LaTex','FontSize',20)
-title('Standard Deviation vs Time','Interpreter','LaTex','FontSize',20)
-% axis([0 tspan(end)/60/60/24 0 max(max([mnt sdt]))*1.01])
-set(gca,'FontSize',14)
+% subplot(3,1,3)
+% plot(tspan,sdt')
+% legend({'$a$','$b$'},'Interpreter','LaTex','FontSize',20)
+% title('Standard Deviation vs Time','Interpreter','LaTex','FontSize',20)
+% % axis([0 tspan(end)/60/60/24 0 max(max([mnt sdt]))*1.01])
+% set(gca,'FontSize',14)

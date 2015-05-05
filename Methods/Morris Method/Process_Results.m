@@ -12,7 +12,7 @@ function [mn sd] = Process_Results(A,r)
 
 %   cycle through experiments and compute main effect
     for i=1:length(A)
-        EE = (diff(r{i})'*ones(1,length(diff(r{i})))./diff(A{i}))
+        EE = (diff(r{i})'*ones(1,length(diff(r{i})))./diff(A{i}));
         ME{i} = EE(isfinite(EE));
     end
     

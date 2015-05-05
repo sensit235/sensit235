@@ -2,19 +2,18 @@
 %
 % run the morris method to obtain sensitivity coefficients
 
-function [] = run_morris()
+% args:
+%   t - equivalent of tspan in ode15s - time range of solution
+%   p - vector of parameters
+%   i - vector of initial conditions
 
-% load up baseline parameters
-parameters
+function [] = run_morris(t,p,i)
 
-% set time
-tspan = linspace(0,20*24*60*60,100);
-
-% initial condition
-x0 = [3.5e-3 45.2e-3 1e-6 0.009]'; % [molal molal molal g/kg]
+tspan = t;
+x0 = i;
 
 % define active parameters (those being varied)
-a = [false false true true false true true false true false true false];
+a = [true true];
 
 % find files holding experiments
 file_list=dir('experiment-*');
@@ -33,10 +32,9 @@ for i=1:nf
         
         % scale active parameters
         p_=scale_parameters(p,A(j,:),a);
-%         p_=scale_parameters(p,pmin,pmax,A(j,:),a);
         
         % run model
-        [t x] = methanogenesis(tspan,p_,x0);
+        [t x] = logistic(tspan,p_,x0);
         
         % save results
         r(j,:) = x(:,1);

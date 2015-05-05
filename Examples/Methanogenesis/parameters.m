@@ -13,6 +13,7 @@ p.T = 310.15; % physiological temperature (K)
 p.Kac = 5e-3; % (Kd) half saturation constant (molal) **
 p.Kn = 0; % effect of nutrient (molal)
 p.m = 2.2e-7; % (D) specific maintenance rate (1/s) **
+p.dummy = 0.;
 
 % minimum
 
@@ -51,7 +52,7 @@ pmin.T = 310.15; % physiological temperature (K)
 pmin.Kac = 1e-3; % (Kd) half saturation constant (molal) **
 pmin.Kn = 0; % effect of nutrient (molal)
 pmin.m = 1e-7; % (D) specific maintenance rate (1/s) **
-
+pmin.dummy = 0.;
 
 % maximum
 
@@ -90,3 +91,4 @@ pmax.T = 310.15; % physiological temperature (K)
 pmax.Kac = 29.1e-3; % (Kd) half saturation constant (molal) **
 pmax.Kn = 0; % effect of nutrient (molal)
 pmax.m = 3e-7; % (D) specific maintenance rate (1/s) **
+pmax.dummy = 0.;
