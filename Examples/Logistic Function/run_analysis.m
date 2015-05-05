@@ -77,20 +77,26 @@ axis([0 tspan(end)/60/60/24 0 max(max([mnt sdt]))*1.01])
 set(gca,'FontSize',14)
 
 % plot against solution
-subplot(3,1,3)
+% subplot(3,1,3)
+figure
 mvt = zeros(size(est,1),1);
 svt = mvt;
 for i=1:size(est,1)
     mvt(i) = mean([rst{i,:}]);
     svt(i) = std([rst{i,:}]);
 end
-plot(tspan/60/60/24,mvt)
+plot(tspan,mvt,'o-')
 title('mac vs time','Interpreter','LaTex','FontSize',20)
 xlabel('time (days)','Interpreter','LaTex','FontSize',20)
 set(gca,'FontSize',14)
 
+load ref t x_sol
+hold on
+plot(t,x_sol,'rs-')
+
 set(gcf,'PaperUnits', 'Inches', 'PaperPosition', [0 0 10 10])
 print -depsc figure1
+
 
 
 % % time averaged plot
@@ -121,9 +127,6 @@ print -depsc figure1
 % save results-param-v-time.mat mnt sdt mvt time param_order
 
 %% renormalise
-
-% compute normalisation inversion values
-a = [true true];
 
 % cycle through all experiments and times results applying normalisation
 
@@ -159,6 +162,11 @@ title('Mean vs Time','Interpreter','LaTex','FontSize',20)
 % axis([0 tspan(end)/60/60/24 0 max(max([mnt sdt]))*1.01])
 set(gca,'FontSize',14)
 
+load ref t dx_da dx_db
+hold on
+plot(t,dx_da,'r-')
+plot(t,dx_db,'r-')
+
 % cycle through and take mean and sd of all normalised main effects
 
 
@@ -182,3 +190,8 @@ set(gca,'FontSize',14)
 % title('Standard Deviation vs Time','Interpreter','LaTex','FontSize',20)
 % % axis([0 tspan(end)/60/60/24 0 max(max([mnt sdt]))*1.01])
 % set(gca,'FontSize',14)
+
+load ref t Ndx_da Ndx_db
+hold on
+plot(t,Ndx_da,'r-')
+plot(t,Ndx_db,'r-')

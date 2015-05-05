@@ -5,15 +5,11 @@
 % args:
 %   t - equivalent of tspan in ode15s - time range of solution
 %   p - vector of parameters
-%   i - vector of initial conditions
+%   a - boolean indicating if parameter is included
 
-function [] = run_morris(t,p,i)
+function [] = run_morris(t,p,a)
 
 tspan = t;
-x0 = i;
-
-% define active parameters (those being varied)
-a = [true true];
 
 % find files holding experiments
 file_list=dir('experiment-*');
@@ -34,7 +30,7 @@ for i=1:nf
         p_=scale_parameters(p,A(j,:),a);
         
         % run model
-        [t x] = logistic(tspan,p_,x0);
+        [t x] = logistic(tspan,p_,p_(3));
         
         % save results
         r(j,:) = x(:,1);
