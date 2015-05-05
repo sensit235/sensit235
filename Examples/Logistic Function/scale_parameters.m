@@ -5,7 +5,7 @@
 % function for scaling experiments to actual values based on %
 function [p_]=scale_parameters(p,x,a)
 
-    pcg = 0.5; % chosen fraction to vary params by
+    pcg = 0.50; % chosen fraction to vary params by
     m=0; % keep track of how many parameters are changed
     p_=p;
     for i=1:length(p)

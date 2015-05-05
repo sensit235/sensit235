@@ -63,17 +63,17 @@ for i=1:size(est,1)
 end
 figure
 subplot(3,1,1)
-plot(tspan/60/60/24,abs(mnt'))
-legend({'$a$','$b$'},'Interpreter','LaTex','FontSize',20)
+plot(tspan,abs(mnt'))
+legend(leg_text,'Interpreter','LaTex','FontSize',20)
 title('Mean vs Time','Interpreter','LaTex','FontSize',20)
-axis([0 tspan(end)/60/60/24 0 max(max([mnt sdt]))*1.01])
+axis([0 tspan(end) 0 max(max([mnt sdt]))*1.01])
 set(gca,'FontSize',14)
 
 subplot(3,1,2)
-plot(tspan/60/60/24,sdt')
-legend({'$a$','$b$'},'Interpreter','LaTex','FontSize',20)
+plot(tspan,sdt')
+legend(leg_text,'Interpreter','LaTex','FontSize',20)
 title('Standard Deviation vs Time','Interpreter','LaTex','FontSize',20)
-axis([0 tspan(end)/60/60/24 0 max(max([mnt sdt]))*1.01])
+axis([0 tspan(end) 0 max(max([mnt sdt]))*1.01])
 set(gca,'FontSize',14)
 
 % plot against solution
@@ -85,14 +85,14 @@ for i=1:size(est,1)
     mvt(i) = mean([rst{i,:}]);
     svt(i) = std([rst{i,:}]);
 end
-plot(tspan,mvt,'o-')
+plot(tspan,mvt)
 title('mac vs time','Interpreter','LaTex','FontSize',20)
 xlabel('time (days)','Interpreter','LaTex','FontSize',20)
 set(gca,'FontSize',14)
 
 load ref t x_sol
 hold on
-plot(t,x_sol,'rs-')
+plot(t,x_sol,'blackx')
 
 set(gcf,'PaperUnits', 'Inches', 'PaperPosition', [0 0 10 10])
 print -depsc figure1
@@ -157,15 +157,18 @@ end
 figure
 % subplot(3,1,1)
 plot(tspan,mnt')
-legend({'$a$','$b$'},'Interpreter','LaTex','FontSize',20)
+legend(leg_text,'Interpreter','LaTex','FontSize',20)
 title('Mean vs Time','Interpreter','LaTex','FontSize',20)
 % axis([0 tspan(end)/60/60/24 0 max(max([mnt sdt]))*1.01])
 set(gca,'FontSize',14)
 
-load ref t dx_da dx_db
+load ref t dx_da dx_db dx_dc
 hold on
-plot(t,dx_da,'r-')
-plot(t,dx_db,'r-')
+plot(t,dx_da,'blackx')
+plot(t,dx_db,'blackx')
+plot(t,dx_dc,'blackx')
+
+print -depsc figure2
 
 % cycle through and take mean and sd of all normalised main effects
 
@@ -179,7 +182,7 @@ end
 figure
 % subplot(3,1,2)
 plot(tspan,mnt')
-legend({'$a$','$b$'},'Interpreter','LaTex','FontSize',20)
+legend(leg_text,'Interpreter','LaTex','FontSize',20)
 title('Mean vs Time','Interpreter','LaTex','FontSize',20)
 % axis([0 tspan(end)/60/60/24 0 max(max([mnt sdt]))*1.01])
 set(gca,'FontSize',14)
@@ -191,7 +194,10 @@ set(gca,'FontSize',14)
 % % axis([0 tspan(end)/60/60/24 0 max(max([mnt sdt]))*1.01])
 % set(gca,'FontSize',14)
 
-load ref t Ndx_da Ndx_db
+load ref t Ndx_da Ndx_db Ndx_dc
 hold on
-plot(t,Ndx_da,'r-')
-plot(t,Ndx_db,'r-')
+plot(t,Ndx_da,'blackx')
+plot(t,Ndx_db,'blackx')
+plot(t,Ndx_dc,'blackx')
+
+print -depsc figure3
