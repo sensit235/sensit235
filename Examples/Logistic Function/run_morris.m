@@ -30,7 +30,7 @@ for i=1:nf
         p_=scale_parameters(p,A(j,:),a);
         
         % run model
-        [t x] = logistic(tspan,p_,p_(3));
+        [t x] = logistic_model(tspan,p_,p_(3));
         
         % save results
         r(j,:) = x(:,1);

@@ -5,6 +5,8 @@ clear all
 
 addpath ../../Methods/Morris' Method'/
 
+arun_sens_logistic_explicit
+
 run_gen_exp(4,4,4);
 
 a = [true true true true];
