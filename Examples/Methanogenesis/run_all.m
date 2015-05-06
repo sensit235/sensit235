@@ -5,7 +5,9 @@
 close all
 clear all
 
-run_gen_exp
+addpath ../../Methods/Morris' Method'/
+
+run_gen_exp(6,1,2);
 
 run_morris
 
