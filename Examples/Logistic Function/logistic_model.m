@@ -1,6 +1,6 @@
-%% logistic
+%% logistic_model.m
 %
-% This function solves the logistic function.
+% This function solves the logistic equation.
 %
 % args:
 %   t - equivalent of tspan in ode15s - time range of solution
