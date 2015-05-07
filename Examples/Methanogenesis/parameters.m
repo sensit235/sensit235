@@ -13,7 +13,6 @@ p.T = 310.15; % physiological temperature (K)
 p.Kac = 5e-3; % (Kd) half saturation constant (molal) **
 p.Kn = 0; % effect of nutrient (molal)
 p.m = 2.2e-7; % (D) specific maintenance rate (1/s) **
-p.dummy = 0.;
 
 % minimum
 
