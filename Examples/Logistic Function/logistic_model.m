@@ -2,16 +2,18 @@
 %
 % This function solves the logistic equation.
 %
-% args:
-%   t - equivalent of tspan in ode15s - time range of solution
-%   p - vector of parameters
-%   i - vector of initial conditions
+% Arguments:
 %
-% ret:
-%   t - times at which solution is output
-%   x - solution vector x(# state variable,time)
+% * t - equivalent of tspan in ode15s - time range of solution
+% * p - vector of parameters
+% * i - vector of initial conditions
+%
+% Returns:
+%
+% * t - times corresponding to solution vector
+% * x - solution vector
 
-function [t x] = logistic(t,p,i)
+function [t x] = logistic_model(t,p,i)
     
     % specify system of equations
     

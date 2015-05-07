@@ -1,18 +1,11 @@
 %% scale_parameters.m
 %
-%
+% A function to scale the experiments generated in the Morris method to the
+% parameter values used in the logistic function.
 
-% function for scaling experiments to actual values based on %
-function [p_]=scale_parameters(p,x,a)
+function [p_]=scale_parameters(p_min,p_max,x)
 
-    pcg = 0.1; % chosen fraction to vary params by
-    m=0; % keep track of how many parameters are changed
-    p_=p;
-    for i=1:length(p)
-        if a(i)
-            m=m+1;
-            p_(m) = p(m)*(1.0 - pcg + 2*pcg*x(m));
-        end
-    end
-
+    p_=p_min;
+    p_ = (p_max-p_min).*x + p_min;
+    
 end

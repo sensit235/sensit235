@@ -1,16 +1,19 @@
 %% Generate_Experiment.m
 %
-% This function will generate a computational experiment that can screen
-% the parameters of a model for their importance. The analysis of the
-% results is performed by a second function.
+% This function will generate a set of computational experiments that are
+% used in the Morris method to compute the sensitivity measures. Each
+% experiment is a $(p+1)\times p$ matrix with each row representing a
+% single sample of the parameter space.
 %
-% args:
-%   k = # parameters
-%   p = # divisions for each parameter
-%   r = # random orientations
+% Args:
 %
-% returns:
-%   A = cell array of experiments - each experiment is (p+1xp)
+% * _k_ = # parameters
+% * _p_ = # divisions for each parameter
+% * _r_ = # random orientations
+%
+% Returns:
+%
+% * _experiments_ = cell array of experiments
 
 function experiments = Generate_Experiment(k,p,r)
 
