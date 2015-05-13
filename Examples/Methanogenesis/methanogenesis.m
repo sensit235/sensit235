@@ -47,7 +47,7 @@ morris_methanogenesis_model = @(t,theta0)...
 % * theta_max = vector of upper bounds of parameters under consideration
 
 theta = [k, nup, chi, Y, Kac, m];
-pcg = 25;
+pcg = 0.0001;
 theta_min = (1 + pcg/100).*theta;
 theta_max = (1 - pcg/100).*theta;
 
