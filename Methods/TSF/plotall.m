@@ -63,3 +63,12 @@ hold on
 title('state 2')
 subplot(212)
 plot(t,y(:,2))
+
+figure(200)
+h1=plot(t_ic,y_ic(:,1),'LineWidth',2)
+hold on
+h2=plot(t_ic,y_ic(:,2),'LineWidth',2)
+h3=plot(t_ic,y_ic(:,3),'LineWidth',2)
+h4=plot(t_ic,y_ic(:,4),'LineWidth',2)
+legend([h1,h2,h3,h4], 'dm_{Ac}/dx_1','dm_{Ac}/dx_2','dm_{Ac}/dx_3','dm_{Ac}/dx_4')
+title('SENSITIVITIES wrt IC')
