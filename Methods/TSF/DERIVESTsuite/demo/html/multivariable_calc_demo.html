@@ -1,0 +1,351 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>multivariable_calc_demo</title><meta name="generator" content="MATLAB 8.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2015-05-08"><meta name="DC.source" content="multivariable_calc_demo.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Gradient of the Rosenbrock function at [1,1], the global minimizer</a></li><li><a href="#3">The Hessian matrix at the minimizer should be positive definite</a></li><li><a href="#4">Gradient estimation using gradest - a function of 5 variables</a></li><li><a href="#5">Simple Hessian matrix of a problem with 3 independent variables</a></li><li><a href="#6">A semi-definite Hessian matrix</a></li><li><a href="#7">Directional derivative of the Rosenbrock function at the solution</a></li><li><a href="#8">Directional derivative at other locations</a></li><li><a href="#9">Jacobian matrix of a scalar function is just the gradient</a></li><li><a href="#10">Jacobian matrix of a linear system will reduce to the design matrix</a></li><li><a href="#11">The jacobian matrix of a nonlinear transformation of variables</a></li></ul></div><pre class="codeinput"><span class="comment">% Multivariate calculus demo script</span>
+
+<span class="comment">% This script file is designed to be used in cell mode</span>
+<span class="comment">% from the matlab editor, or best of all, use the publish</span>
+<span class="comment">% to HTML feature from the matlab editor. Older versions</span>
+<span class="comment">% of matlab can copy and paste entire blocks of code into</span>
+<span class="comment">% the Matlab command window.</span>
+
+<span class="comment">% Typical usage of the gradient and Hessian might be in</span>
+<span class="comment">% optimization problems, where one might compare an analytically</span>
+<span class="comment">% derived gradient for correctness, or use the Hessian matrix</span>
+<span class="comment">% to compute confidence interval estimates on parameters in a</span>
+<span class="comment">% maximum likelihood estimation.</span>
+</pre><h2>Gradient of the Rosenbrock function at [1,1], the global minimizer<a name="2"></a></h2><pre class="codeinput">rosen = @(x) (1-x(1)).^2 + 105*(x(2)-x(1).^2).^2;
+<span class="comment">% The gradient should be zero (within floating point noise)</span>
+[grad,err] = gradest(rosen,[1 1])
+</pre><pre class="codeoutput">
+grad =
+
+   1.0e-13 *
+
+    0.4019         0
+
+
+err =
+
+   1.0e-13 *
+
+    0.2949         0
+
+</pre><h2>The Hessian matrix at the minimizer should be positive definite<a name="3"></a></h2><pre class="codeinput">H = hessian(rosen,[1 1])
+<span class="comment">% The eigenvalues of h should be positive</span>
+eig(H)
+</pre><pre class="codeoutput">
+H =
+
+  842.0000 -420.0000
+ -420.0000  210.0000
+
+
+ans =
+
+   1.0e+03 *
+
+    0.0004
+    1.0516
+
+</pre><h2>Gradient estimation using gradest - a function of 5 variables<a name="4"></a></h2><pre class="codeinput">[grad,err] = gradest(@(x) sum(x.^2),[1 2 3 4 5])
+</pre><pre class="codeoutput">
+grad =
+
+    2.0000    4.0000    6.0000    8.0000   10.0000
+
+
+err =
+
+   1.0e-13 *
+
+    0.0614    0.1003    0.1003    0.1003    0.2005
+
+</pre><h2>Simple Hessian matrix of a problem with 3 independent variables<a name="5"></a></h2><pre class="codeinput">[H,err] = hessian(@(x) x(1) + x(2)^2 + x(3)^3,[1 2 3])
+</pre><pre class="codeoutput">
+H =
+
+         0   -0.0000   -0.0000
+   -0.0000    2.0000   -0.0000
+   -0.0000   -0.0000   18.0000
+
+
+err =
+
+   1.0e-13 *
+
+         0    0.0071    0.0864
+    0.0071    0.0416    0.4313
+    0.0864    0.4313    0.4712
+
+</pre><h2>A semi-definite Hessian matrix<a name="6"></a></h2><pre class="codeinput">H = hessian(@(xy) cos(xy(1) - xy(2)),[0 0])
+<span class="comment">% one of these eigenvalues will be zero (approximately)</span>
+eig(H)
+</pre><pre class="codeoutput">
+H =
+
+   -1.0000    1.0000
+    1.0000   -1.0000
+
+
+ans =
+
+   -2.0000
+   -0.0000
+
+</pre><h2>Directional derivative of the Rosenbrock function at the solution<a name="7"></a></h2><p>This should be zero. Ok, its a trivial test case.</p><pre class="codeinput">[dd,err] = directionaldiff(rosen,[1 1],[1 2])
+</pre><pre class="codeoutput">
+dd =
+
+   5.0194e-21
+
+
+err =
+
+   1.3239e-18
+
+</pre><h2>Directional derivative at other locations<a name="8"></a></h2><pre class="codeinput">[dd,err] = directionaldiff(rosen,[2 3],[1 -1])
+
+<span class="comment">% We can test this example</span>
+v = [1 -1];
+v = v/norm(v);
+g = gradest(rosen,[2 3]);
+
+<span class="comment">% The directional derivative will be the dot product of the gradient with</span>
+<span class="comment">% the (unit normalized) vector. So this difference will be (approx) zero.</span>
+dot(g,v) - dd
+</pre><pre class="codeoutput">
+dd =
+
+  743.8763
+
+
+err =
+
+   5.7416e-12
+
+
+ans =
+
+   3.4106e-13
+
+</pre><h2>Jacobian matrix of a scalar function is just the gradient<a name="9"></a></h2><pre class="codeinput">[jac,err] = jacobianest(rosen,[2 3])
+
+grad = gradest(rosen,[2 3])
+</pre><pre class="codeoutput">
+jac =
+
+  842.0000 -210.0000
+
+
+err =
+
+   1.0e-11 *
+
+    0.5292         0
+
+
+grad =
+
+  842.0000 -210.0000
+
+</pre><h2>Jacobian matrix of a linear system will reduce to the design matrix<a name="10"></a></h2><pre class="codeinput">A = rand(5,3);
+b = rand(5,1);
+fun = @(x) (A*x-b);
+
+x = rand(3,1);
+[jac,err] = jacobianest(fun,x)
+
+disp <span class="string">'This should be essentially zero at any location x'</span>
+jac - A
+</pre><pre class="codeoutput">
+jac =
+
+    0.0605    0.6280    0.1672
+    0.3993    0.2920    0.1062
+    0.5269    0.4317    0.3724
+    0.4168    0.0155    0.1981
+    0.6569    0.9841    0.4897
+
+
+err =
+
+   1.0e-14 *
+
+    0.0136    0.1772    0.0443
+    0.0886    0.0627    0.0157
+    0.1253    0.0627         0
+    0.1085    0.0020    0.0443
+    0.1772    0.1772    0.0627
+
+This should be essentially zero at any location x
+
+ans =
+
+   1.0e-15 *
+
+   -0.0069         0   -0.0278
+   -0.1665         0   -0.0139
+         0   -0.0555         0
+   -0.0555         0   -0.0278
+   -0.2220         0         0
+
+</pre><h2>The jacobian matrix of a nonlinear transformation of variables<a name="11"></a></h2><p>evaluated at some arbitrary location [-2, -3]</p><pre class="codeinput">fun = @(xy) [xy(1).^2, cos(xy(1) - xy(2))];
+[jac,err] = jacobianest(fun,[-2 -3])
+</pre><pre class="codeoutput">
+jac =
+
+   -4.0000         0
+   -0.8415    0.8415
+
+
+err =
+
+   1.0e-12 *
+
+    0.0050         0
+    0.1603    0.0841
+
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015a</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% Multivariate calculus demo script
+
+% This script file is designed to be used in cell mode
+% from the matlab editor, or best of all, use the publish
+% to HTML feature from the matlab editor. Older versions
+% of matlab can copy and paste entire blocks of code into
+% the Matlab command window.
+
+% Typical usage of the gradient and Hessian might be in
+% optimization problems, where one might compare an analytically
+% derived gradient for correctness, or use the Hessian matrix
+% to compute confidence interval estimates on parameters in a
+% maximum likelihood estimation.
+
+%% Gradient of the Rosenbrock function at [1,1], the global minimizer
+rosen = @(x) (1-x(1)).^2 + 105*(x(2)-x(1).^2).^2;
+% The gradient should be zero (within floating point noise)
+[grad,err] = gradest(rosen,[1 1])
+
+%% The Hessian matrix at the minimizer should be positive definite
+H = hessian(rosen,[1 1])
+% The eigenvalues of h should be positive
+eig(H)
+
+%% Gradient estimation using gradest - a function of 5 variables
+[grad,err] = gradest(@(x) sum(x.^2),[1 2 3 4 5])
+
+%% Simple Hessian matrix of a problem with 3 independent variables
+[H,err] = hessian(@(x) x(1) + x(2)^2 + x(3)^3,[1 2 3])
+
+%% A semi-definite Hessian matrix
+H = hessian(@(xy) cos(xy(1) - xy(2)),[0 0])
+% one of these eigenvalues will be zero (approximately)
+eig(H)
+
+%% Directional derivative of the Rosenbrock function at the solution
+% This should be zero. Ok, its a trivial test case.
+[dd,err] = directionaldiff(rosen,[1 1],[1 2])
+
+%% Directional derivative at other locations
+[dd,err] = directionaldiff(rosen,[2 3],[1 -1])
+
+% We can test this example
+v = [1 -1];
+v = v/norm(v);
+g = gradest(rosen,[2 3]);
+
+% The directional derivative will be the dot product of the gradient with
+% the (unit normalized) vector. So this difference will be (approx) zero.
+dot(g,v) - dd
+
+%% Jacobian matrix of a scalar function is just the gradient
+[jac,err] = jacobianest(rosen,[2 3])
+
+grad = gradest(rosen,[2 3])
+
+%% Jacobian matrix of a linear system will reduce to the design matrix
+A = rand(5,3);
+b = rand(5,1);
+fun = @(x) (A*x-b);
+
+x = rand(3,1);
+[jac,err] = jacobianest(fun,x)
+
+disp 'This should be essentially zero at any location x'
+jac - A
+
+%% The jacobian matrix of a nonlinear transformation of variables
+% evaluated at some arbitrary location [-2, -3]
+fun = @(xy) [xy(1).^2, cos(xy(1) - xy(2))];
+[jac,err] = jacobianest(fun,[-2 -3])
+
+
+
+##### SOURCE END #####
+--></body></html>

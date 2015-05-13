@@ -3,7 +3,7 @@ function x_methane_sens_num
 close all
 
 
-addpath ../External/DERIVESTsuite/
+addpath DERIVESTsuite/
 
 % load data
 t_data=[0 2 4 5 6 10 12 14 16 18]*24*60*60;
@@ -74,49 +74,6 @@ n_p = 10;
 save res_num.mat t y t_num y_num
 
 
-figure(3);
-subplot(711)
-    plot(t,y(:,1),'r','Linewidth',2)
-%    title('State variable: m_{Ac}')
-%    xlabel('time (s)')
-    xlim([0 td(end)])
-subplot(712)
-    plot(t,y(:,5),'Linewidth',2)
-    %plot(t,Kac*y(:,5),'r','Linewidth',2)
-%    title('RSF for: K_{Ac}')
-%    xlabel('time (s)')
-    xlim([0 td(end)])
-subplot(713)
-    plot(t,y(:,6),'Linewidth',2)
-    %plot(t,m*y(:,6),'r','Linewidth',2)
-%    title('RSF for: m')
-%    xlabel('time (s)')
-    xlim([0 td(end)])
-subplot(714)
-    plot(t,y(:,7),'Linewidth',2)
-    %plot(t,m*y(:,6),'r','Linewidth',2)
-%    title('RSF for: Y')
-%    xlabel('time (s)')
-    xlim([0 td(end)])
-subplot(715)
-    plot(t,y(:,8),'Linewidth',2)
-    %plot(t,m*y(:,6),'r','Linewidth',2)
-%    title('RSF for: \nu_p')
-%    xlabel('time (s)')
-    xlim([0 td(end)])
-subplot(716)
-    plot(t,y(:,9),'Linewidth',2)
-    %plot(t,m*y(:,6),'r','Linewidth',2)
-    title('RSF for: k')
-%    xlabel('time (s)')
-    xlim([0 td(end)])
-subplot(717)
-    plot(t,y(:,10),'Linewidth',2)
-    %plot(t,m*y(:,6),'r','Linewidth',2)
-    title('RSF for: chi')
-    xlabel('time (s)')
-    xlim([0 td(end)])   
-
 % sen1=norm(Kac*y(:,5)./y(:,1),2)    
 % sen2=norm(m*y(:,6)./y(:,1),2)    
   
@@ -180,7 +137,7 @@ dy      = [dy_state; dy_sens];            % returning states + sens
 
 end
 
-function dy = rhs_sens_methane(~,x,pars)
+function dy = rhs_sens_methane(t,x,pars)
 
 DG0     = pars(1);
 R       = pars(2);
