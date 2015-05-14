@@ -2,22 +2,21 @@ function x_methane_sens_num
 
 close all
 
-addpath ../External/DERIVESTsuite/
+addpath ../../External/DERIVESTsuite/
 
 % load data
 t_data=[0 2 4 5 6 10 12 14 16 18]*24*60*60;
 y_data=[3.68 2.54 1.90 1.85 1.61 1.31 1.28 1.17 1.02 0.97]*1e-3;
 
 % Simulation interval
-days = 18;
+days = 20;
 td=(0:0.01:1)*days*24*60*60;
 
 
 % load parameters
 DG0 = -15802.1961;  % standard value of Gibbs free energy at T=310.15K (J/mol)
 R   = 8.3145;       % gas constant (J/mol/K)
-%k   = 2.5e-6;       % (mol/g/s) **
-k   = 2.5e-5;       % (mol/g/s) **
+k   = 2.5e-6;       % (mol/g/s) **
 
 nup = 0.5;          % (per reaction) **
 DGp = 45000;        % phosphorylation energy (J/(mol ATP)) **

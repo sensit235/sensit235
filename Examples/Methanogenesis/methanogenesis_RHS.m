@@ -1,18 +1,17 @@
-%% methanogenesis_model.m
+%% methanogenesis_RHS.m
 %
-% This function solves the model of methanogenesis given to us by Chewy.
+% This function computes the RHS vector of the model of methanogenesis
+% given to us by Chewy.
 %
 % Args:
 %
-% * |t| - equivalent of tspan in ode15s - time range of solution
+% * |x| - vector of state variables [mac mHCO3 mCH4 X]'
 % * |p| - vector of parameter values
-% * |i| - vector of initial conditions [mac mHCO3 mCH4 X]'
 %
 % ret:
-% * |t| - times at which solution is output
-% * |x| - solution vector x(# state variable,time)
+% * |rhs| - times at which solution is output
 
-function [t x] = methanogenesis(t,p,i)
+function [rhs] = methanogenesis_RHS(x,p)
     
     DG0 = p(1); % standard value of Gibbs free energy at T=310.15K (J/mol)
     R = p(2); % gas constant (J/mol/K)
@@ -32,14 +31,9 @@ function [t x] = methanogenesis(t,p,i)
         (DG0+R*T*log(x(2)*x(3)/x(1))+nup*DGp)/...
         chi/R/T));
     
-    s = @(t,x) [-r(x);...
+    rhs = [-r(x);...
         r(x);...
         r(x);...
         Y*r(x)*x(3)/(x(3)+Kn) - m*x(4)];
-    
-    % solve system of equations
-    options=odeset('RelTol',1e-6,'AbsTol',1e-6,'NormControl','on',...
-        'InitialStep',1e-4);
-    [t x] = ode15s(s,t,i,options);
 
 end
