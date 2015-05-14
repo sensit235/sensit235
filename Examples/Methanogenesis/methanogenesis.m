@@ -131,7 +131,7 @@ print -depsc figure4
 
 figure
 plot(tspan,mnt1(1:6,:)',t,y(:,5:10),'blackx')
-title('Mean vs Time','Interpreter','LaTex','FontSize',20)
+title('Morris vs TSF','Interpreter','LaTex','FontSize',20)
 set(gca,'FontSize',14)
 
 legend(leg_text,'Interpreter','LaTex','FontSize',20)
@@ -139,9 +139,8 @@ legend(leg_text,'Interpreter','LaTex','FontSize',20)
 print -depsc figure5
 
 figure
-% plot(tspan,mnt1(7:10,:)',t,y(:,29:32),'blackx')
-plot(tspan,mnt1([7 8 10],:)',t,y(:,29:32),'blackx')
-title('Mean vs Time','Interpreter','LaTex','FontSize',20)
+plot(tspan,mnt1(7:10,:)',t,y(:,29:32),'blackx')
+title('Morris vs TSF initial conditions','Interpreter','LaTex','FontSize',20)
 set(gca,'FontSize',14)
 
 legend(leg_text,'Interpreter','LaTex','FontSize',20)
