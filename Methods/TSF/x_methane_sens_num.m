@@ -9,10 +9,9 @@ t_data=[0 2 4 5 6 10 12 14 16 18]*24*60*60;
 y_data=[3.68 2.54 1.90 1.85 1.61 1.31 1.28 1.17 1.02 0.97]*1e-3;
 
 % SIMULATION INTERVAL
-days = 18;
-td=(0:0.01:1)*days*24*60*60;
-n_s = 4;    % number of states
-n_p = 10;   % number of parameters
+days = 18; td   = (0:0.01:1)*days*24*60*60;
+n_s  = 4;           % number of states
+n_p  = 10;          % number of parameters
 
 % PARAMETERS
 DG0 = -15802.1961;  % standard value of Gibbs free energy at T=310.15K (J/mol)
@@ -43,18 +42,19 @@ x0_anal = [x0_fix zeros(1,24)];
 [t,y]   = ode15s(@rhs_SenPar_anal,tspan,x0_anal,options,parms);
 
 % SENS wrt PARs NUMERICAL
-x0_num = [x0_fix zeros(1,n_s*n_p)];
+x0_num        = [x0_fix zeros(1,n_s*n_p)];
 [t_num,y_num] = ode15s(@rhs_SenPar_num,tspan,x0_num,options,parms,n_s,n_p);
 
 % SENS wrt IC NUMERICAL
-x0_num_IC = [x0_fix zeros(1,n_s*n_s)];
+% ERROR
+x0_num_IC   = [x0_fix zeros(1,n_s*n_s)];
 [t_ic,y_ic] = ode15s(@rhs_SenIC_num,tspan,x0_num_IC,options,parms,n_s);
 
 % SAVE
 save res_num.mat t y t_num y_num t_ic y_ic
 end
 
-% SENSITIVITIES WRT PARAMETERS
+% SENSITIVITIES wrt PARAMETERS
 function dy = rhs_SenPar_num(t,v,pars,n_s,n_p)
 %
 % v     : state and sensitivity variables
@@ -103,7 +103,7 @@ dy      = [dy_state; dy_sens];            % returning states + sens
 
 end
 
-% SENSITIVITIES WRT INITIAL CONDITIONS
+% SENSITIVITIES wrt INITIAL CONDITIONS
 function dy = rhs_SenIC_num(t,v,pars,n_s)
 
 rr = @(x,p) p(3)*x(4)*x(1)/(p(9) + x(1))*...
@@ -133,7 +133,7 @@ dy_sens_IC = reshape(Sen_IC',n_s*n_s,1);    % matrix 2 vector
 dy         = [dy_state; dy_sens_IC];        % returning states + sens_IC       
 end
 
-
+% SENSITIVITIES wrt PARAMETERS analytically
 function dy = rhs_SenPar_anal(t,x,pars)
 
 % pars = [DG0 R k nup DGp chi Y T Kac m];
