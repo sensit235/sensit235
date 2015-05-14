@@ -41,13 +41,14 @@ options = odeset('RelTol',1e-6,'AbsTol',1e-6);
 x0_anal = [x0_fix zeros(1,24)];
 [t,y]   = ode15s(@rhs_SenPar_anal,tspan,x0_anal,options,parms);
 
-% SENS wrt PARs NUMERICAL
+% SENS wrt PARS NUMERICAL
 x0_num        = [x0_fix zeros(1,n_s*n_p)];
 [t_num,y_num] = ode15s(@rhs_SenPar_num,tspan,x0_num,options,parms,n_s,n_p);
 
 % SENS wrt IC NUMERICAL
-% ERROR
-x0_num_IC   = [x0_fix zeros(1,n_s*n_s)];
+xic         = eye(n_s);                 % identity matrix
+xic_vec     = reshape(xic,1,n_s*n_s);   % matrix 2 vector
+x0_num_IC   = [x0_fix xic_vec];         % initial conditions
 [t_ic,y_ic] = ode15s(@rhs_SenIC_num,tspan,x0_num_IC,options,parms,n_s);
 
 % SAVE
