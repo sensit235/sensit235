@@ -14,7 +14,7 @@ addpath ../../Methods/TSF/
 
 %% Define the parameters and initial conditions.
 %
-% * theta = optimal fits of parameters under consideration $\theta_0$
+% * theta = 29:44 optimal fits of parameters under consideration $\theta_0$
 % * x0 = initial conditions under consideration
 
 theta = [0.8,0.1];
@@ -29,7 +29,7 @@ tspan = [0 16];
 % * theta_min = vector of lower bounds of parameters under consideration
 % * theta_max = vector of upper bounds of parameters under consideration
 
-pcg = 0.0001;
+pcg = 1e0;
 theta_min = (1 + pcg/100).*theta;
 theta_max = (1 - pcg/100).*theta;
 x0_min = (1 + pcg/100).*x0;
@@ -96,13 +96,26 @@ print -depsc figure2
 
 % standard tsf vs analytic
 figure
-plot(tl,yl(:,2:3))
+plot(tl,yl(:,2:4))
 hold on
+plot(t,dx_da,'blackx')
+plot(t,dx_db,'blackx')
+plot(t,dx_dc,'blackx')
 title('Mean vs Time','Interpreter','LaTex','FontSize',20)
+set(gca,'FontSize',14)
+legend({'Morris','TSF','analytic'},'Interpreter','LaTex','FontSize',20)
+
+print -depsc figure3
+
+%% Compare Morris vs TSF vs analytic
+
+figure
+plot(tspan,mnt1','-',tl,yl(:,2:4),'--')
+hold on
+title('Comparison of Methods','Interpreter','LaTex','FontSize',20)
 set(gca,'FontSize',14)
 plot(t,dx_da,'blackx')
 plot(t,dx_db,'blackx')
 plot(t,dx_dc,'blackx')
-legend(leg_text,'Interpreter','LaTex','FontSize',20)
 
-print -depsc figure3
+print -depsc figure4

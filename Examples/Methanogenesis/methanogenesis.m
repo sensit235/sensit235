@@ -48,7 +48,7 @@ restrict_methanogenesis_RHS = @(x,theta0)...
 % * theta_max = vector of upper bounds of parameters under consideration
 
 theta = [k, nup, chi, Y, Kac, m];
-pcg = 0.0001;
+pcg = 1e0;
 theta_min = (1 + pcg/100).*theta;
 theta_max = (1 - pcg/100).*theta;
 x0_min = (1 + pcg/100).*x0;
@@ -137,3 +137,13 @@ set(gca,'FontSize',14)
 legend(leg_text,'Interpreter','LaTex','FontSize',20)
 
 print -depsc figure5
+
+figure
+% plot(tspan,mnt1(7:10,:)',t,y(:,29:32),'blackx')
+plot(tspan,mnt1([7 8 10],:)',t,y(:,29:32),'blackx')
+title('Mean vs Time','Interpreter','LaTex','FontSize',20)
+set(gca,'FontSize',14)
+
+legend(leg_text,'Interpreter','LaTex','FontSize',20)
+
+print -depsc figure6

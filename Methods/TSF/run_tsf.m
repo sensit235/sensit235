@@ -21,8 +21,11 @@ n_s = length(x0); % number of states
 % Compute the solution to the sensitivity equations constructed in
 % tsf_model.
 
-xinit = zeros(n_s + n_s*n_p,1);
+xinit = zeros(n_s + n_s*n_p +n_s*n_s,1);
 xinit(1:n_s) = x0;
+xinit(n_s+1:n_s+n_s*n_p) = zeros(n_s*n_p,1); % add initial condition for param sens
+xic = eye(n_s); % initial conditions for initial condition sens
+xinit(n_s+n_s*n_p+1:n_s + n_s*n_p +n_s*n_s) = reshape(xic,n_s*n_s,1); % full initial condition vector
 options = odeset('RelTol',1e-6,'AbsTol',1e-6);
 [t_num,y_num] = ode15s(@tsf_model,t,xinit,options,model_rhs,theta,n_s,n_p);
 
@@ -68,8 +71,16 @@ SenEq   = dfdx*vv+dfda;              % SENSITIVITY EQUATION
 dy_sens = reshape(SenEq',n_s*n_p,1); % matrix 2 vector
 
 %%
+% add initial conditions
+
+v_IC       = v(n_s+n_s*n_p+1:n_s+n_s*n_p+n_s*n_s);
+vv_IC      = reshape(v_IC,[n_s,n_s])';
+Sen_IC     = dfdx*vv_IC;
+dy_sens_IC = reshape(Sen_IC',n_s*n_s,1);
+
+%%
 % append sensitivity equations as vector
 
-dy      = [dy_state; dy_sens];            % returning states + sens
+dy      = [dy_state; dy_sens; dy_sens_IC];            % returning full eqns
 
 end
