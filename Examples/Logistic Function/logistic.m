@@ -1,3 +1,4 @@
+
 %% logistic.m
 %
 % The logistic equation detailed in |\cite{Banks2007a}| provides a good
@@ -9,6 +10,7 @@ close all
 clear all
 arun_sens_logistic_explicit % generate analytic solution
 addpath ../../Methods/Morris' Method'/
+addpath ../../Methods/TSF/
 
 %% Define the parameters and initial conditions.
 %
