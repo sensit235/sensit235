@@ -30,6 +30,8 @@ tspan = [0 16];
 pcg = 0.0001;
 theta_min = (1 + pcg/100).*theta;
 theta_max = (1 - pcg/100).*theta;
+x0_min = (1 + pcg/100).*x0;
+x0_max = (1 - pcg/100).*x0;
 
 %%
 % The Morris method can now be used to compute the sensitivity measures for
@@ -37,7 +39,7 @@ theta_max = (1 - pcg/100).*theta;
 
 tspan = linspace(tspan(1),tspan(2),100);
 [mnt0 sdt0] = ...
-    run_morris(4,4,tspan,x0,theta_min,theta_max,@logistic_RHS);
+    run_morris(4,4,tspan,x0_min,x0_max,theta_min,theta_max,@logistic_RHS);
 
 %%
 % Now results are obtained without normalisation and with the same
@@ -45,14 +47,14 @@ tspan = linspace(tspan(1),tspan(2),100);
 % against the analytic solutions.
 
 [mnt1 sdt1] = ...
-    run_morris(4,4,tspan,x0,theta_min,theta_max,@logistic_RHS,'none');
+    run_morris(4,4,tspan,x0_min,x0_max,theta_min,theta_max,@logistic_RHS,'none');
 
 [mnt2 sdt2] = ...
-    run_morris(4,4,tspan,x0,theta_min,theta_max,@logistic_RHS,'rsf');
+    run_morris(4,4,tspan,x0_min,x0_max,theta_min,theta_max,@logistic_RHS,'rsf');
 
 % generate analytic solutions
 load ref t dx_da dx_db dx_dc Ndx_da Ndx_db Ndx_dc
-leg_text = {'a','b'};
+leg_text = {'a','b','x0'};
 
 % standard morris vs no normalisation and analytic
 figure
@@ -63,7 +65,7 @@ title('Mean vs Time','Interpreter','LaTex','FontSize',20)
 set(gca,'FontSize',14)
 plot(t,dx_da,'blackx')
 plot(t,dx_db,'blackx')
-% plot(t,dx_dc,'blackx')
+plot(t,dx_dc,'blackx')
 legend(leg_text,'Interpreter','LaTex','FontSize',20)
 
 print -depsc figure1
@@ -77,38 +79,28 @@ title('Mean vs Time','Interpreter','LaTex','FontSize',20)
 set(gca,'FontSize',14)
 plot(t,Ndx_da,'blackx')
 plot(t,Ndx_db,'blackx')
-% plot(t,Ndx_dc,'blackx')
+plot(t,Ndx_dc,'blackx')
 legend(leg_text,'Interpreter','LaTex','FontSize',20)
 
 print -depsc figure2
 
-% %% Computing the sensitivity measures using total sensitivity functions.
-% 
-% 
-% % standard morris vs no normalisation and analytic
-% figure
-% plot(tspan,mnt0')
-% hold on
-% plot(tspan,mnt1')
-% title('Mean vs Time','Interpreter','LaTex','FontSize',20)
-% set(gca,'FontSize',14)
-% plot(t,dx_da,'blackx')
-% plot(t,dx_db,'blackx')
-% % plot(t,dx_dc,'blackx')
-% legend(leg_text,'Interpreter','LaTex','FontSize',20)
-% 
-% print -depsc figure1
-% 
-% % standard morris vs rsf normalisation and analytic
-% figure
-% plot(tspan,mnt0')
-% hold on
-% plot(tspan,mnt2')
-% title('Mean vs Time','Interpreter','LaTex','FontSize',20)
-% set(gca,'FontSize',14)
-% plot(t,Ndx_da,'blackx')
-% plot(t,Ndx_db,'blackx')
-% % plot(t,Ndx_dc,'blackx')
-% legend(leg_text,'Interpreter','LaTex','FontSize',20)
-% 
-% print -depsc figure2
+%% Compute the sensitivity measures using total sensitivity functions.
+
+%%
+% The vector of parameters under consideration is constructed and the
+% |run_tsf| function called to compute the sensitivities
+
+[tl yl] = run_tsf(tspan,@logistic_RHS,theta,x0);
+
+% standard tsf vs analytic
+figure
+plot(tl,yl(:,2:3))
+hold on
+title('Mean vs Time','Interpreter','LaTex','FontSize',20)
+set(gca,'FontSize',14)
+plot(t,dx_da,'blackx')
+plot(t,dx_db,'blackx')
+plot(t,dx_dc,'blackx')
+legend(leg_text,'Interpreter','LaTex','FontSize',20)
+
+print -depsc figure3

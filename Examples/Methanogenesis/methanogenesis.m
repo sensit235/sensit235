@@ -35,7 +35,7 @@ x0 = [3.5e-3, 45.2e-3, 1e-6, 0.009]; % [molal molal molal g/kg]
 % Need to define a wrapper function that only uses a subset of the actual
 % parameter values in the analysis.
 
-morris_methanogenesis_RHS = @(x,theta0)...
+restrict_methanogenesis_RHS = @(x,theta0)...
     methanogenesis_RHS(x,...
     [DG0, R, theta0(1), theta0(2), DGp, theta0(3), theta0(4), T,...
     theta0(5), Kn, theta0(6)]);
@@ -51,6 +51,8 @@ theta = [k, nup, chi, Y, Kac, m];
 pcg = 0.0001;
 theta_min = (1 + pcg/100).*theta;
 theta_max = (1 - pcg/100).*theta;
+x0_min = (1 + pcg/100).*x0;
+x0_max = (1 - pcg/100).*x0;
 
 %%
 % The Morris method can now be used to compute the sensitivity measures for
@@ -58,7 +60,7 @@ theta_max = (1 - pcg/100).*theta;
 
 tspan = linspace(0,20*24*60*60,100);
 [mnt0 sdt0] = ...
-    run_morris(4,4,tspan,x0,theta_min,theta_max,morris_methanogenesis_RHS);
+    run_morris(4,4,tspan,x0_min,x0_max,theta_min,theta_max,restrict_methanogenesis_RHS);
 
 %%
 % Now results are obtained without normalisation and with the same
@@ -66,18 +68,16 @@ tspan = linspace(0,20*24*60*60,100);
 % against the analytic solutions.
 
 [mnt1 sdt1] = ...
-    run_morris(4,4,tspan,x0,theta_min,theta_max,morris_methanogenesis_RHS,'none');
+    run_morris(4,4,tspan,x0_min,x0_max,theta_min,theta_max,restrict_methanogenesis_RHS,'none');
 
 [mnt2 sdt2] = ...
-    run_morris(4,4,tspan,x0,theta_min,theta_max,morris_methanogenesis_RHS,'rsf');
+    run_morris(4,4,tspan,x0_min,x0_max,theta_min,theta_max,restrict_methanogenesis_RHS,'rsf');
 
 leg_text = {'k', 'nup', 'chi', 'Y', 'Kac', 'm'};
 
 % standard morris
 figure
-plot(tspan,mnt0')
-% hold on
-% plot(tspan,mnt1')
+plot(tspan,mnt0(1:6,:)')
 title('Mean vs Time','Interpreter','LaTex','FontSize',20)
 set(gca,'FontSize',14)
 
@@ -87,9 +87,7 @@ print -depsc figure1
 
 % no normalisation
 figure
-% plot(tspan,mnt0')
-% hold on
-plot(tspan,mnt1')
+plot(tspan,mnt1(1:6,:)')
 title('Mean vs Time','Interpreter','LaTex','FontSize',20)
 set(gca,'FontSize',14)
 
@@ -99,9 +97,7 @@ print -depsc figure2
 
 % rsf normalisation
 figure
-% plot(tspan,mnt0')
-% hold on
-plot(tspan,mnt2')
+plot(tspan,mnt2(1:6,:)')
 title('Mean vs Time','Interpreter','LaTex','FontSize',20)
 set(gca,'FontSize',14)
 
@@ -111,22 +107,12 @@ print -depsc figure3
 
 %% Computing the sensitivity measures using total sensitivity functions.
 %
-% Need to define a wrapper function that only uses a subset of the actual
-% parameter values in the analysis.
-
-tsf_methanogenesis_RHS = @(x,theta)...
-    methanogenesis_RHS(x,...
-    [DG0, R, theta(1), theta(2), DGp, theta(3), theta(4), T,...
-    theta(5), Kn, theta(6)]);
-
-%% Run the sensitivity analysis.
-%
 % The vector of parameters under consideration is constructed and the
 % |run_tsf| function called to compute the sensitivities
 
 theta = [k, nup, chi, Y, Kac, m];
 tspan = linspace(0,20*24*60*60,100);
-[t y] = run_tsf(tspan,tsf_methanogenesis_RHS,theta,x0);
+[t y] = run_tsf(tspan,restrict_methanogenesis_RHS,theta,x0);
 
 %%
 % Plot the results for mac
@@ -144,7 +130,7 @@ print -depsc figure4
 %% Comparison of the two methods without normalisation.
 
 figure
-plot(tspan,mnt1',t,y(:,5:10),'blackx')
+plot(tspan,mnt1(1:6,:)',t,y(:,5:10),'blackx')
 title('Mean vs Time','Interpreter','LaTex','FontSize',20)
 set(gca,'FontSize',14)
 

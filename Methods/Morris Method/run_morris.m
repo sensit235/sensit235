@@ -20,7 +20,7 @@
 % * |model| - a handle to the model RHS
 % * |nls| - specify normalisation if required ('none','rsf')
 
-function [mnt, sdt] = run_morris(r,n,t,x0,p_min,p_max,model,varargin)
+function [mnt, sdt] = run_morris(r,n,t,x0_min,x0_max,p_min,p_max,model,varargin)
 
 % test for different normalisation
 if isempty(varargin)
@@ -34,6 +34,10 @@ end
 % the total number of initial conditions + parameters is even and generate
 % experiments.
 
+np = length(p_min);
+ni = length(x0_min);
+p_min = [p_min x0_min];
+p_max = [p_max x0_max];
 
 if ~(mod(length(p_min),2)==0) % test if not even
     p_min = [p_min 0.0];
@@ -62,8 +66,8 @@ for i=1:length(A)
         
         % run model
         options = odeset('RelTol',1e-6,'AbsTol',1e-6);
-        morris_model = @(t,x) model(x,p_);
-        [t,x] = ode15s(morris_model,t,x0,options);
+        morris_model = @(t,x) model(x,p_(1:np));
+        [t,x] = ode15s(morris_model,t,p_(np+1:np+ni),options);
         
         % save results
         r(j,:) = x(:,1);
