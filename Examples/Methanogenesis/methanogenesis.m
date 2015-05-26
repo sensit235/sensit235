@@ -48,7 +48,7 @@ restrict_methanogenesis_RHS = @(x,theta0)...
 % * theta_max = vector of upper bounds of parameters under consideration
 
 theta = [k, nup, chi, Y, Kac, m];
-pcg = 1e0;
+pcg = 1e-1;
 theta_min = (1 + pcg/100).*theta;
 theta_max = (1 - pcg/100).*theta;
 x0_min = (1 + pcg/100).*x0;
@@ -146,3 +146,45 @@ set(gca,'FontSize',14)
 legend(leg_text,'Interpreter','LaTex','FontSize',20)
 
 print -depsc figure6
+
+%% Addressing numerical instabilities.
+%
+% In the previous figure it can be seen that there is numerical instability
+% in the computation of the sensitivity of the initial conditions. This
+% arises due to the finite precision available in matlab, but can be
+% circumvented in many cases.
+%
+% In this example a simple rescaling of the state variables is sufficient
+% to remove these instabilities. If the Morris method results are then
+% recomputed using the scaled equations, the sensitivities will be
+% identical and the instabilities removed.
+
+% initial condition
+x0 = [3.5e-3, 45.2e-3, 1e-3, 0.009]; % [molal molal molal g/kg]
+x0_min = (1 + pcg/100).*x0;
+x0_max = (1 - pcg/100).*x0;
+
+%%
+% The Morris method can now be used to compute the sensitivity measures for
+% the model parameters of interest.
+
+restrict_methanogenesis_RHS = @(x,theta0)...
+    methanogenesis_RHS_scaled(x,...
+    [DG0, R, theta0(1), theta0(2), DGp, theta0(3), theta0(4), T,...
+    theta0(5), Kn, theta0(6)]);
+tspan = linspace(0,20*24*60*60,100);
+[mnt3 sdt3] = ...
+    run_morris(4,4,tspan,x0_min,x0_max,theta_min,theta_max,restrict_methanogenesis_RHS,'none');
+
+%%
+% Remove the scaling from the solutions
+mnt3(9,:) = mnt3(9,:)*1000;
+
+figure
+plot(tspan,mnt3(7:10,:)',t,y(:,29:32),'blackx')
+title('Morris vs TSF initial conditions','Interpreter','LaTex','FontSize',20)
+set(gca,'FontSize',14)
+
+legend(leg_text,'Interpreter','LaTex','FontSize',20)
+
+print -depsc figure7
