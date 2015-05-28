@@ -1,4 +1,4 @@
-%% run_morris_new.m
+%% run_morris.m
 %
 % This function computes the sensitivity measures for a given model using
 % the Morris method. The sensitivity measures are the mean and standard
@@ -17,10 +17,10 @@
 % * |t| - vector of times at which to compute sensitivity
 % * |p_min| - vector of parameter min bound
 % * |p_max| - vector of parameter max bound
-% * |model| - a handle to the model
+% * |model| - a handle to the model RHS
 % * |nls| - specify normalisation if required ('none','rsf')
 
-function [mnt, sdt] = run_morris_new(r,n,t,p_min,p_max,model,varargin)
+function [mnt, sdt] = run_morris(r,n,t,x0_min,x0_max,p_min,p_max,model,varargin)
 
 % test for different normalisation
 if isempty(varargin)
@@ -30,7 +30,15 @@ else
 end
 
 %%
-% Ensure number of parameters is even and generate experiments.
+% Add initial conditions to parameters to determine sensitivity and ensure
+% the total number of initial conditions + parameters is even and generate
+% experiments.
+
+np = length(p_min);
+ni = length(x0_min);
+p_min = [p_min x0_min];
+p_max = [p_max x0_max];
+
 if ~(mod(length(p_min),2)==0) % test if not even
     p_min = [p_min 0.0];
     p_max = [p_max 1.0];
@@ -57,7 +65,9 @@ for i=1:length(A)
         p_=scale_parameters(p_min,p_max,A{i}(j,:));
         
         % run model
-        [t x] = model(t,p_);
+        options = odeset('RelTol',1e-6,'AbsTol',1e-6);
+        morris_model = @(t,x) model(x,p_(1:np));
+        [t,x] = ode15s(morris_model,t,p_(np+1:np+ni),options);
         
         % save results
         r(j,:) = x(:,1);
