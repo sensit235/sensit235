@@ -64,8 +64,7 @@ tspan = linspace(0,20*24*60*60,100);
 
 %%
 % Now results are obtained without normalisation and with the same
-% normalisation as the relative sensitivity functions. And are plotted
-% against the analytic solutions.
+% normalisation as the relative sensitivity functions.
 
 [mnt1 sdt1] = ...
     run_morris(4,4,tspan,x0_min,x0_max,theta_min,theta_max,restrict_methanogenesis_RHS,'none');
@@ -78,7 +77,9 @@ leg_text = {'k', 'nup', 'chi', 'Y', 'Kac', 'm'};
 % standard morris
 figure
 plot(tspan,mnt0(1:6,:)')
-title('Mean vs Time','Interpreter','LaTex','FontSize',20)
+title('Standard Morris Method','Interpreter','LaTex','FontSize',20)
+xlabel('Time (s)','Interpreter','LaTex','FontSize',20)
+ylabel('Mean','Interpreter','LaTex','FontSize',20)
 set(gca,'FontSize',14)
 
 legend(leg_text,'Interpreter','LaTex','FontSize',20)
@@ -88,7 +89,9 @@ print -depsc figure1
 % no normalisation
 figure
 plot(tspan,mnt1(1:6,:)')
-title('Mean vs Time','Interpreter','LaTex','FontSize',20)
+title('Morris No Normalisation','Interpreter','LaTex','FontSize',20)
+xlabel('Time (s)','Interpreter','LaTex','FontSize',20)
+ylabel('$\frac{\partial x}{\partial \theta}$','Interpreter','LaTex','FontSize',20)
 set(gca,'FontSize',14)
 
 legend(leg_text,'Interpreter','LaTex','FontSize',20)
@@ -98,7 +101,9 @@ print -depsc figure2
 % rsf normalisation
 figure
 plot(tspan,mnt2(1:6,:)')
-title('Mean vs Time','Interpreter','LaTex','FontSize',20)
+title('Morris RSF Normalisation','Interpreter','LaTex','FontSize',20)
+xlabel('Time (s)','Interpreter','LaTex','FontSize',20)
+ylabel('$\frac{\partial x}{\partial \theta}$','Interpreter','LaTex','FontSize',20)
 set(gca,'FontSize',14)
 
 legend(leg_text,'Interpreter','LaTex','FontSize',20)
@@ -120,7 +125,9 @@ tspan = linspace(0,20*24*60*60,100);
 leg_text = {'k', 'nup', 'chi', 'Y', 'Kac', 'm'};
 figure
 plot(t,y(:,5:10))
-title('Mean vs Time','Interpreter','LaTex','FontSize',20)
+title('TSF','Interpreter','LaTex','FontSize',20)
+xlabel('Time (s)','Interpreter','LaTex','FontSize',20)
+ylabel('$\frac{\partial x}{\partial \theta}$','Interpreter','LaTex','FontSize',20)
 set(gca,'FontSize',14)
 
 legend(leg_text,'Interpreter','LaTex','FontSize',20)
@@ -132,15 +139,20 @@ print -depsc figure4
 figure
 plot(tspan,mnt1(1:6,:)',t,y(:,5:10),'blackx')
 title('Morris vs TSF','Interpreter','LaTex','FontSize',20)
+xlabel('Time (s)','Interpreter','LaTex','FontSize',20)
+ylabel('$\frac{\partial x}{\partial \theta}$','Interpreter','LaTex','FontSize',20)
 set(gca,'FontSize',14)
 
 legend(leg_text,'Interpreter','LaTex','FontSize',20)
 
 print -depsc figure5
 
+leg_text = {'x0(1)', 'x0(2)', 'x0(3)', 'x0(4)'};
 figure
 plot(tspan,mnt1(7:10,:)',t,y(:,29:32),'blackx')
-title('Morris vs TSF initial conditions','Interpreter','LaTex','FontSize',20)
+title('Morris vs TSF','Interpreter','LaTex','FontSize',20)
+xlabel('Time (s)','Interpreter','LaTex','FontSize',20)
+ylabel('$\frac{\partial x}{\partial x_0}$','Interpreter','LaTex','FontSize',20)
 set(gca,'FontSize',14)
 
 legend(leg_text,'Interpreter','LaTex','FontSize',20)
@@ -157,10 +169,19 @@ print -depsc figure6
 % In this example a simple rescaling of the state variables is sufficient
 % to remove these instabilities. If the Morris method results are then
 % recomputed using the scaled equations, the sensitivities will be
-% identical and the instabilities removed.
+% identical and the instabilities removed. The steady state values of the
+% first 3 state variables have been used for scaling because they can be
+% obtained analytically. The fourth state variable has a steady state value
+% of 0 and is therefore not scaled to avoid singularities.
+
+% analytic steady-state
+ss1=0.0045;
+ss2=0.0442;
+ss3=0.0010;
+ss4=0;
 
 % initial condition
-x0 = [3.5e-3, 45.2e-3, 1e-3, 0.009]; % [molal molal molal g/kg]
+x0 = [(3.5e-3)/ss1, (45.2e-3)/ss2, (1e-6)/ss3, 0.009]; % [molal molal molal g/kg]
 x0_min = (1 + pcg/100).*x0;
 x0_max = (1 - pcg/100).*x0;
 
@@ -178,11 +199,16 @@ tspan = linspace(0,20*24*60*60,100);
 
 %%
 % Remove the scaling from the solutions
-mnt3(9,:) = mnt3(9,:)*1000;
+mnt3(7,:) = mnt3(7,:);
+mnt3(8,:) = mnt3(8,:)*ss1/ss2;
+mnt3(9,:) = mnt3(9,:)*ss1/ss3;
+mnt3(10,:) = mnt3(10,:)*ss1;
 
 figure
 plot(tspan,mnt3(7:10,:)',t,y(:,29:32),'blackx')
-title('Morris vs TSF initial conditions','Interpreter','LaTex','FontSize',20)
+title('Morris vs TSF','Interpreter','LaTex','FontSize',20)
+xlabel('Time (s)','Interpreter','LaTex','FontSize',20)
+ylabel('$\frac{\partial x}{\partial x_0}$','Interpreter','LaTex','FontSize',20)
 set(gca,'FontSize',14)
 
 legend(leg_text,'Interpreter','LaTex','FontSize',20)

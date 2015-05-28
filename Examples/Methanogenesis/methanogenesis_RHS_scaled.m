@@ -12,7 +12,13 @@
 % * |rhs| - times at which solution is output
 
 function [rhs] = methanogenesis_RHS_scaled(x,p)
-    
+
+    % analytical steady-states
+    ss1=0.0045;
+    ss2=0.0442;
+    ss3=0.0010;
+    ss4=0;
+
     DG0 = p(1); % standard value of Gibbs free energy at T=310.15K (J/mol)
     R = p(2); % gas constant (J/mol/K)
     k = p(3); % (mol/g/s) **
@@ -24,16 +30,16 @@ function [rhs] = methanogenesis_RHS_scaled(x,p)
     Kac = p(9); % (Kd) half saturation constant (molal) **
     Kn = p(10); % effect of nutrient (molal)
     m = p(11); % (D) specific maintenance rate (1/s) **
-
+    
     % specify auxiliary equations
-    r = @(x) k*x(4)*x(1)/(Kac + x(1))*...
+    r = @(x) k*x(4)*x(1)*ss1/(Kac + x(1)*ss1)*...
         (1 - exp(...
-        (DG0+R*T*log(x(2)*x(3)/1000/x(1))+nup*DGp)/...
+        (DG0+R*T*log(x(2)*ss2*x(3)*ss3/(x(1)*ss1))+nup*DGp)/...
         chi/R/T));
     
-    rhs = [-r(x);...
-        r(x);...
-        r(x)*1000;...
-        Y*r(x)*x(3)/1000/(x(3)/1000+Kn) - m*x(4)];
+    rhs = [-r(x)/ss1;...
+        r(x)/ss2;...
+        r(x)/ss3;...
+        Y*r(x)*x(3)*ss3/(x(3)*ss3+Kn) - m*x(4)];
 
 end
