@@ -9,9 +9,10 @@ k =@(t) exp(p(1)+p(2)/T(t));
 l =@(t) exp(p(3)+p(4)/T(t));
 m =@(t) exp(p(5)+p(6)/T(t));
 
-rhs = zeros(3,1);
+rhs = zeros(4,1);
 rhs(1) = -k(t)*x(1)+m(t)*x(2);
 rhs(2) = -l(t)*x(2)-m(t)*x(2)+k(t)*x(1);
 rhs(3) = l(t)*x(2);
+rhs(4) = -100*(rhs(1)+p(7)*rhs(2)+p(8)*rhs(3));
 
 end

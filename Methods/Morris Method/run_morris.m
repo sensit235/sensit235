@@ -117,42 +117,47 @@ end
 
 %%
 % Remove normalisation and apply new if requested
-
+est_orig = est;
 if strcmp(nls,'none') | strcmp(nls,'rsf')
-    ee = est;
-    for j=1:size(est,2) % experiments
-        for i=1:size(est,1) % times
-            % remove normalisations
-            for k=1:size(est{i,j},1)
-%                 pc=scale_parameters(theta,est{i,j}(k,:),a);
-                pc=scale_parameters(p_min,p_max,est{i,j}(k,:));
-                est{i,j}(k,:) = pc;
-            end
+    for kp=1:ni
+        ee = est;
+        for j=1:size(est,2) % experiments
+            for i=1:size(est,1) % times
+                % remove normalisations
+                for k=1:size(est{i,j},1)
+    %                 pc=scale_parameters(theta,est{i,j}(k,:),a);
+                    pc=scale_parameters(p_min,p_max,est{i,j}(k,:));
+                    est{i,j}(k,:) = pc;
+                end
 
-            % apply new normalisation
-            [ee{i,j} sd] = Process_Results(est(i,j),rst(i,j,1));
-            [l m n] = find(diff(est{i,j}));
-            for k=1:size(ee{i,j},1)
-                ee{i,j}(k) = ee{i,j}(k).*est{i,j}(l(k),k)./rst{i,j,1}(l(k));
+                % apply new normalisation
+                [ee{i,j} sd] = Process_Results(est(i,j),rst(i,j,kp));
+                [l m n] = find(diff(est{i,j}));
+                for k=1:size(ee{i,j},1)
+                    ee{i,j}(k) = ee{i,j}(k).*est{i,j}(l(k),k)./rst{i,j,kp}(l(k));
+                end
             end
         end
-    end
-    
-    % output with normalisation removed
-    if strcmp(nls,'none')
-        for i=1:size(est,1)
-            es=[est(i,:)];
-            rs=[rst(i,:,1)];
-            [mnt(:,i) sdt(:,i)] = Process_Results(es,rs);
+
+        % output with normalisation removed
+        if strcmp(nls,'none')
+            for i=1:size(est,1)
+                es=[est(i,:)];
+                rs=[rst(i,:,kp)];
+                [mnt(:,i,kp) sdt(:,i,kp)] = Process_Results(es,rs);
+            end
         end
-    end
-    
-    % output with relative sensitivity normalisation
-    if strcmp(nls,'rsf')
-        for i=1:size(est,1) % times
-            mnt(:,i) = mean(cell2mat(ee(i,:)),2);
-            sdt(:,i) = std(cell2mat(ee(i,:)),0,2);
+
+        % output with relative sensitivity normalisation
+        if strcmp(nls,'rsf')
+            for i=1:size(est,1) % times
+                mnt(:,i) = mean(cell2mat(ee(i,:)),2);
+                sdt(:,i) = std(cell2mat(ee(i,:)),0,2);
+            end
         end
+        
+        % reset est
+        est = est_orig;
     end
 end
 
