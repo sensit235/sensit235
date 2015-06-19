@@ -10,7 +10,7 @@
 % ret:
 % * |rhs| - times at which solution is output
 
-function [rhs] = logistic_RHS(x,p)
+function [rhs] = logistic_RHS(t,x,p)
     
     % specify system of equations
     

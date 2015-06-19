@@ -20,7 +20,7 @@
 % * |model| - a handle to the model RHS
 % * |nls| - specify normalisation if required ('none','rsf')
 
-function [mnt, sdt] = run_morris(r,n,t,x0_min,x0_max,p_min,p_max,model,varargin)
+function [mnt_out, sdt_out] = run_morris(r,n,t,x0_min,x0_max,p_min,p_max,model,varargin)
 
 % test for different normalisation
 if isempty(varargin)
@@ -56,7 +56,7 @@ y = {};
 for i=1:length(A)
     
     % initialise results array
-    r = zeros(size(A{i},1),length(t));
+    r = zeros(size(A{i},1),length(t),ni);
     
     % loop through individual runs
     for j=1:size(A{i},1)
@@ -66,11 +66,13 @@ for i=1:length(A)
         
         % run model
         options = odeset('RelTol',1e-6,'AbsTol',1e-6);
-        morris_model = @(t,x) model(x,p_(1:np));
+        morris_model = @(t,x) model(t,x,p_(1:np));
         [t,x] = ode15s(morris_model,t,p_(np+1:np+ni),options);
         
         % save results
-        r(j,:) = x(:,1);
+        
+%         r(j,:) = x(:,1);
+        r(j,:,:) = reshape(x(:,:),1,length(t),ni);
         
     end
     
@@ -90,7 +92,11 @@ for i=1:length(A)
     % loop through times
     for j=1:size(y{i},2)
         est(j,i) = {A{i}};
-        rst(j,i) = {y{i}(:,j)'};
+        
+        % loop through state variables
+        for k=1:ni
+            rst(j,i,k) = {y{i}(:,j,k)'};
+        end
 
     end
 
@@ -99,12 +105,14 @@ end
 %%
 % Compute standard Morris method mean and standard deviation
 
-mnt = zeros(length(p_min),size(est,1));
+mnt = zeros(length(p_min),size(est,1),ni);
 sdt = mnt;
-for i=1:size(est,1)
-    es=[est(i,:)];
-    rs=[rst(i,:)];
-    [mnt(:,i) sdt(:,i)] = Process_Results(es,rs);
+for k=1:ni;
+    for i=1:size(est,1)
+        es=[est(i,:)];
+        rs=[rst(i,:,k)];
+        [mnt(:,i,k) sdt(:,i,k)] = Process_Results(es,rs);
+    end
 end
 
 %%
@@ -122,10 +130,10 @@ if strcmp(nls,'none') | strcmp(nls,'rsf')
             end
 
             % apply new normalisation
-            [ee{i,j} sd] = Process_Results(est(i,j),rst(i,j));
+            [ee{i,j} sd] = Process_Results(est(i,j),rst(i,j,1));
             [l m n] = find(diff(est{i,j}));
             for k=1:size(ee{i,j},1)
-                ee{i,j}(k) = ee{i,j}(k).*est{i,j}(l(k),k)./rst{i,j}(l(k));
+                ee{i,j}(k) = ee{i,j}(k).*est{i,j}(l(k),k)./rst{i,j,1}(l(k));
             end
         end
     end
@@ -134,7 +142,7 @@ if strcmp(nls,'none') | strcmp(nls,'rsf')
     if strcmp(nls,'none')
         for i=1:size(est,1)
             es=[est(i,:)];
-            rs=[rst(i,:)];
+            rs=[rst(i,:,1)];
             [mnt(:,i) sdt(:,i)] = Process_Results(es,rs);
         end
     end
@@ -153,8 +161,20 @@ end
 % Strip off extra parameter if odd number of parameters
 
 if ~p_even
-    mnt = mnt(1:end-1,:);
-    sdt = sdt(1:end-1,:);
+    mnt = mnt(1:end-1,:,:);
+    sdt = sdt(1:end-1,:,:);
 end
+
+% construct array of sensitivities
+mnt_out=[];
+sdt_out=[];
+for k=1:ni
+    mnt_out = [mnt_out; mnt(:,:,k)];
+    sdt_out = [sdt_out; sdt(:,:,k)];
+end
+
+% append mean solutions
+solns = permute(mean(cat(1,y{:})),[3 2 1]);
+mnt_out = [solns;mnt_out];
 
 end

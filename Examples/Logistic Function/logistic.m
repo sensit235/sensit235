@@ -103,7 +103,6 @@ plot(t,dx_db,'blackx')
 plot(t,dx_dc,'blackx')
 title('Mean vs Time','Interpreter','LaTex','FontSize',20)
 set(gca,'FontSize',14)
-legend({'Morris','TSF','analytic'},'Interpreter','LaTex','FontSize',20)
 
 print -depsc figure3
 

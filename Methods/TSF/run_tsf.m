@@ -50,17 +50,17 @@ function dy = tsf_model(t,v,model,pars,n_s,n_p)
 %%
 % Compute the current value of RHS for state variables
 
-dy_state = model([v(1:n_s)],pars);
+dy_state = model(t,[v(1:n_s)],pars);
 
 %%
 % compute the Jacobian df/dx
 
-dfdx = jacobianest(@(x) model(x,pars),[v(1:n_s)]);
+dfdx = jacobianest(@(x) model(t,x,pars),[v(1:n_s)]);
 
 %%
 % compute the derivate $\frac{dF}{d\theta}$
 
-dfda = jacobianest(@(x) model([v(1:n_s)],x),pars);
+dfda = jacobianest(@(x) model(t,[v(1:n_s)],x),pars);
 
 %%
 % compute the sensitivity matrix

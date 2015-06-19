@@ -35,7 +35,7 @@ x0 = [3.5e-3, 45.2e-3, 1e-6, 0.009]; % [molal molal molal g/kg]
 % Need to define a wrapper function that only uses a subset of the actual
 % parameter values in the analysis.
 
-restrict_methanogenesis_RHS = @(x,theta0)...
+restrict_methanogenesis_RHS = @(t,x,theta0)...
     methanogenesis_RHS(x,...
     [DG0, R, theta0(1), theta0(2), DGp, theta0(3), theta0(4), T,...
     theta0(5), Kn, theta0(6)]);
@@ -76,7 +76,7 @@ leg_text = {'k', 'nup', 'chi', 'Y', 'Kac', 'm'};
 
 % standard morris
 figure
-plot(tspan,mnt0(1:6,:)')
+plot(tspan,mnt0(5:10,:)')
 title('Standard Morris Method','Interpreter','LaTex','FontSize',20)
 xlabel('Time (s)','Interpreter','LaTex','FontSize',20)
 ylabel('Mean','Interpreter','LaTex','FontSize',20)
@@ -88,7 +88,7 @@ print -depsc figure1
 
 % no normalisation
 figure
-plot(tspan,mnt1(1:6,:)')
+plot(tspan,mnt1(5:10,:)')
 title('Morris No Normalisation','Interpreter','LaTex','FontSize',20)
 xlabel('Time (s)','Interpreter','LaTex','FontSize',20)
 ylabel('$\frac{\partial x}{\partial \theta}$','Interpreter','LaTex','FontSize',20)
@@ -100,7 +100,7 @@ print -depsc figure2
 
 % rsf normalisation
 figure
-plot(tspan,mnt2(1:6,:)')
+plot(tspan,mnt2(5:10,:)')
 title('Morris RSF Normalisation','Interpreter','LaTex','FontSize',20)
 xlabel('Time (s)','Interpreter','LaTex','FontSize',20)
 ylabel('$\frac{\partial x}{\partial \theta}$','Interpreter','LaTex','FontSize',20)
@@ -137,7 +137,7 @@ print -depsc figure4
 %% Comparison of the two methods without normalisation.
 
 figure
-plot(tspan,mnt1(1:6,:)',t,y(:,5:10),'blackx')
+plot(tspan,mnt1(5:10,:)',t,y(:,5:10),'blackx')
 title('Morris vs TSF','Interpreter','LaTex','FontSize',20)
 xlabel('Time (s)','Interpreter','LaTex','FontSize',20)
 ylabel('$\frac{\partial x}{\partial \theta}$','Interpreter','LaTex','FontSize',20)
@@ -149,7 +149,7 @@ print -depsc figure5
 
 leg_text = {'x0(1)', 'x0(2)', 'x0(3)', 'x0(4)'};
 figure
-plot(tspan,mnt1(7:10,:)',t,y(:,29:32),'blackx')
+plot(tspan,mnt1(11:14,:)',t,y(:,29:32),'blackx')
 title('Morris vs TSF','Interpreter','LaTex','FontSize',20)
 xlabel('Time (s)','Interpreter','LaTex','FontSize',20)
 ylabel('$\frac{\partial x}{\partial x_0}$','Interpreter','LaTex','FontSize',20)
@@ -189,7 +189,7 @@ x0_max = (1 - pcg/100).*x0;
 % The Morris method can now be used to compute the sensitivity measures for
 % the model parameters of interest.
 
-restrict_methanogenesis_RHS = @(x,theta0)...
+restrict_methanogenesis_RHS = @(t,x,theta0)...
     methanogenesis_RHS_scaled(x,...
     [DG0, R, theta0(1), theta0(2), DGp, theta0(3), theta0(4), T,...
     theta0(5), Kn, theta0(6)]);
@@ -199,13 +199,13 @@ tspan = linspace(0,20*24*60*60,100);
 
 %%
 % Remove the scaling from the solutions
-mnt3(7,:) = mnt3(7,:);
-mnt3(8,:) = mnt3(8,:)*ss1/ss2;
-mnt3(9,:) = mnt3(9,:)*ss1/ss3;
-mnt3(10,:) = mnt3(10,:)*ss1;
+mnt3(11,:) = mnt3(11,:);
+mnt3(12,:) = mnt3(12,:)*ss1/ss2;
+mnt3(13,:) = mnt3(13,:)*ss1/ss3;
+mnt3(14,:) = mnt3(14,:)*ss1;
 
 figure
-plot(tspan,mnt3(7:10,:)',t,y(:,29:32),'blackx')
+plot(tspan,mnt3(11:14,:)',t,y(:,29:32),'blackx')
 title('Morris vs TSF','Interpreter','LaTex','FontSize',20)
 xlabel('Time (s)','Interpreter','LaTex','FontSize',20)
 ylabel('$\frac{\partial x}{\partial x_0}$','Interpreter','LaTex','FontSize',20)
