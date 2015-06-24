@@ -1,4 +1,3 @@
-
 %% logistic.m
 %
 
