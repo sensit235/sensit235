@@ -1,4 +1,3 @@
-
 %% logistic.m
 %
 % The logistic equation detailed in |\cite{Banks2007a}| provides a good

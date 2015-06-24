@@ -151,8 +151,8 @@ if strcmp(nls,'none') | strcmp(nls,'rsf')
         % output with relative sensitivity normalisation
         if strcmp(nls,'rsf')
             for i=1:size(est,1) % times
-                mnt(:,i) = mean(cell2mat(ee(i,:)),2);
-                sdt(:,i) = std(cell2mat(ee(i,:)),0,2);
+                mnt(:,i,kp) = mean(cell2mat(ee(i,:)),2);
+                sdt(:,i,kp) = std(cell2mat(ee(i,:)),0,2);
             end
         end
         

@@ -30,6 +30,8 @@ bm = log((r_low_m)/r_high)/(1/310 - 1/(273+85));
 am = log(r_low_m) - bm/310;
 
 theta = [ak bk al bl am bm theta0(end-1:end)];
+theta = [0.0100   -3.2798    0.0061   -2.3690...
+    0.0040   -1.4710 0.00003964   0.00002701].*1e4;
 
 % initial condition
 x0 = [1 0 0 0]; % [N U D]
@@ -42,7 +44,7 @@ x0 = [1 0 0 0]; % [N U D]
 T =@(t) (358-(273+37))*heaviside(-t+120)+273+37;
 tsf_tissue_RHS =@(t,x,p) tissue_RHS(t,x,p,T);
 
-tspan = [0:5:1500]';
+tspan = [linspace(0,1,100) linspace(1.01,1500,100)]';
 [t y] = run_tsf(tspan,tsf_tissue_RHS,theta,x0);
 
 %% Compute sensitivities of observation function and plot.
@@ -88,7 +90,7 @@ x0_max = (1 - pcg/100).*x0;
 T =@(t) (358-(273+37))*heaviside(-t+120)+273+37;
 morris_tissue_RHS =@(t,x,p) tissue_RHS(t,x,p,T);
 
-tspan = [0:5:1500]';
+tspan = [linspace(0,1,100) linspace(1.01,1500,100)]';
 
 [mnt1 sdt1] = ...
     run_morris(4,4,tspan,x0_min,x0_max,theta_min,theta_max,morris_tissue_RHS,'none');
@@ -111,3 +113,21 @@ plot(tspan,[(S{1}')*theta(1) (S{2}')*theta(2) (S{3}')*theta(3)...
 legend({'1','2','3','4','5','6'})
 hold on
 plot(tspan,(mnt1(41:48,:)')*diag(theta),'blackx')
+
+%% display useful results
+
+% tsf versus morris
+figure
+plot(tspan,(mnt1(41:48,:)')*diag(theta),...
+    tspan,y(:,29:36)*diag(theta),'blackx')
+legend({'1','2','3','4','5','6','7','8'})
+
+% solution / state variables / sensitivities
+figure
+subplot(3,1,1)
+plot(tspan,y(:,4))
+subplot(3,1,2)
+plot(tspan,[y(:,1) y(:,2) y(:,3)])
+subplot(3,1,3)
+plot(tspan,(mnt1(41:48,:)')*diag(theta))
+legend({'1','2','3','4','5','6','7','8'})
