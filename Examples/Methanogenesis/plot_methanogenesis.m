@@ -33,7 +33,7 @@ figure
     xlabel('Time (s)','FontSize',fonsiz)
     ylabel('Mean','FontSize',fonsiz)
     set(gca,'FontSize',fonsiz)
-    legend(leg_text,'Interpreter','LaTex','FontSize',fonsiz)
+    legend(leg_text,'FontSize',fonsiz)
 
 if(opt_plot)
 print -depsc Plots/figure2
@@ -67,13 +67,13 @@ end
 %% Comparison of the two methods without normalisation.
 
 figure, hold on
-    plot(t,y(:,5:10),'blackx','LineWidth',linwid)
-    plot(tspan,mnt1(5:10,:),'LineWidth',linwid)
+    plot(tspan,mnt1(5:10,:),'r','LineWidth',linwid)
+    plot(t,y(:,5:10),'k*','LineWidth',linwid)
     title('Morris vs TSF','FontSize',20)
     xlabel('Time (s)','FontSize',20)
     ylabel('Mean','FontSize',fonsiz)
     set(gca,'FontSize',14)
-    legend(leg_text,'FontSize',20)
+    %legend([h1,h2],['Morris','TSF'],'FontSize',20)
     
 if(opt_plot)
 print -depsc Plots/figure5
