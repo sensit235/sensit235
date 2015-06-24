@@ -48,7 +48,7 @@ theta_max   = (1 - pcg/100).*theta;
 x0_min      = (1 + pcg/100).*x0;
 x0_max      = (1 - pcg/100).*x0;
 
-%% Computing the sensitivity measures using the Morris method
+%% Computing the sensitivity measures using Morris method
 
 % The Morris method (standard normalization) 
 tspan           = linspace(0,20*24*60*60,100);
@@ -75,7 +75,6 @@ tspan = linspace(0,20*24*60*60,100);
 [t, y] = sensit_tsf(tspan,restrict_methanogenesis_RHS,theta,x0);
 
 
-save saved_data.mat mnt0 sdt0 mnt1 sdt1 mnt2 sdt2 t y tspan 
 %% Addressing numerical instabilities.
 %
 % In the previous figure it can be seen that there is numerical instability
@@ -102,7 +101,6 @@ x0 = [(3.5e-3)/ss1, (45.2e-3)/ss2, (1e-6)/ss3, 0.009]; % [molal molal molal g/kg
 x0_min = (1 + pcg/100).*x0;
 x0_max = (1 - pcg/100).*x0;
 
-%%
 % The Morris method can now be used to compute the sensitivity measures for
 % the model parameters of interest.
 
@@ -114,22 +112,12 @@ tspan = linspace(0,20*24*60*60,100);
 [mnt3, sdt3] = ...
     sensit_morris(4,4,tspan,x0_min,x0_max,theta_min,theta_max,restrict_methanogenesis_RHS,'none');
 
-%%
-leg_text = {'k', 'nup', 'chi', 'Y', 'Kac', 'm'};
-
 % Remove the scaling from the solutions
 mnt3(11,:) = mnt3(11,:);
 mnt3(12,:) = mnt3(12,:)*ss1/ss2;
 mnt3(13,:) = mnt3(13,:)*ss1/ss3;
 mnt3(14,:) = mnt3(14,:)*ss1;
 
-figure
-plot(tspan,mnt3(11:14,:)',t,y(:,29:32),'blackx')
-title('Morris vs TSF','Interpreter','LaTex','FontSize',20)
-xlabel('Time (s)','Interpreter','LaTex','FontSize',20)
-ylabel('$\frac{\partial x}{\partial x_0}$','Interpreter','LaTex','FontSize',20)
-set(gca,'FontSize',14)
 
-legend(leg_text,'Interpreter','LaTex','FontSize',20)
-
-%print -depsc figure7
+% Saving ALL
+save saved_data.mat mnt0 sdt0 mnt1 sdt1 mnt2 sdt2 mnt3 sdt3 t y tspan 
