@@ -1,6 +1,7 @@
 
 %% logistic.m
 %
+
 % The logistic equation detailed in |\cite{Banks2007a}| provides a good
 % test of the performance of the Morris method. It has an analytic solution
 % and few parameters allowing the direct computation of errors and
