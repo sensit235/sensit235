@@ -40,13 +40,13 @@ x0 = [1 0 0 0]; % [N U D]
 %% Run the tsf sensitivity analysis.
 %
 % The vector of parameters under consideration is constructed and the
-% |run_tsf| function called to compute the sensitivities
+% |sensit_tsf| function called to compute the sensitivities
 
 T =@(t) (358-(273+37))*heaviside(-t+120)+273+37;
 tsf_tissue_RHS =@(t,x,p) tissue_RHS(t,x,p,T);
 
 tspan = [linspace(0,1,100) linspace(1.01,1500,100)]';
-[t y] = run_tsf(tspan,tsf_tissue_RHS,theta,x0);
+[t y] = sensit_tsf(tspan,tsf_tissue_RHS,theta,x0);
 
 %% Compute sensitivities of observation function and plot.
 ob1 = [-100,-100*theta(end-1),-100*theta(end)];
@@ -94,7 +94,7 @@ morris_tissue_RHS =@(t,x,p) tissue_RHS(t,x,p,T);
 tspan = [linspace(0,1,100) linspace(1.01,1500,100)]';
 
 [mnt1 sdt1] = ...
-    run_morris(4,4,tspan,x0_min,x0_max,theta_min,theta_max,morris_tissue_RHS,'none');
+    sensit_morris(4,4,tspan,x0_min,x0_max,theta_min,theta_max,morris_tissue_RHS,'rsf');
 
 %% Compute sensitivities of observation function and plot.
 ob1 = [-100,-100*theta(end-1),-100*theta(end)];
@@ -119,8 +119,8 @@ plot(tspan,(mnt1(41:48,:)')*diag(theta),'blackx')
 
 % tsf versus morris
 figure
-plot(tspan,(mnt1(41:48,:)')*diag(theta),...
-    tspan,y(:,29:36)*diag(theta),'blackx')
+plot(tspan,mnt1(41:48,:)',...
+    tspan,y(:,29:36)./kron(ones(1,8),y(:,4))*diag(theta),'blackx')
 legend({'1','2','3','4','5','6','7','8'})
 
 % solution / state variables / sensitivities
@@ -130,5 +130,5 @@ plot(tspan,y(:,4))
 subplot(3,1,2)
 plot(tspan,[y(:,1) y(:,2) y(:,3)])
 subplot(3,1,3)
-plot(tspan,(mnt1(41:48,:)')*diag(theta))
+plot(tspan,mnt1(41:48,:)')
 legend({'1','2','3','4','5','6','7','8'})

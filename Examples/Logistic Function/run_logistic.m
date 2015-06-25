@@ -41,7 +41,7 @@ x0_max = (1 - pcg/100).*x0;
 
 tspan = linspace(tspan(1),tspan(2),100);
 [mnt0 sdt0] = ...
-    run_morris(4,4,tspan,x0_min,x0_max,theta_min,theta_max,@logistic_RHS);
+    sensit_morris(4,4,tspan,x0_min,x0_max,theta_min,theta_max,@logistic_RHS);
 
 %%
 % Now results are obtained without normalisation and with the same
@@ -49,10 +49,10 @@ tspan = linspace(tspan(1),tspan(2),100);
 % against the analytic solutions.
 
 [mnt1 sdt1] = ...
-    run_morris(4,4,tspan,x0_min,x0_max,theta_min,theta_max,@logistic_RHS,'none');
+    sensit_morris(4,4,tspan,x0_min,x0_max,theta_min,theta_max,@logistic_RHS,'none');
 
 [mnt2 sdt2] = ...
-    run_morris(4,4,tspan,x0_min,x0_max,theta_min,theta_max,@logistic_RHS,'rsf');
+    sensit_morris(4,4,tspan,x0_min,x0_max,theta_min,theta_max,@logistic_RHS,'rsf');
 
 % generate analytic solutions
 load ref t dx_da dx_db dx_dc Ndx_da Ndx_db Ndx_dc
@@ -90,9 +90,9 @@ print -depsc figure2
 
 %%
 % The vector of parameters under consideration is constructed and the
-% |run_tsf| function called to compute the sensitivities
+% |sensit_tsf| function called to compute the sensitivities
 
-[tl yl] = run_tsf(tspan,@logistic_RHS,theta,x0);
+[tl yl] = sensit_tsf(tspan,@logistic_RHS,theta,x0);
 
 % standard tsf vs analytic
 figure
@@ -118,3 +118,14 @@ plot(t,dx_db,'blackx')
 plot(t,dx_dc,'blackx')
 
 print -depsc figure4
+
+%% compare everything scaled
+
+figure
+plot(tspan,mnt2(2:4,:)','-',tl,yl(:,2:4)./kron(ones(1,3),yl(:,1))*diag([theta x0]),'o')
+hold on
+title('Comparison of Methods','Interpreter','LaTex','FontSize',20)
+set(gca,'FontSize',14)
+plot(t,Ndx_da,'blackx')
+plot(t,Ndx_db,'blackx')
+plot(t,Ndx_dc,'blackx')
